@@ -132,4 +132,3 @@ npm test           # vitest
 - This is a personal tool, intentionally **not indexed** by search engines and not publicly hosted.
 - There's no scraping or automated messaging — outreach is always sent manually by the user.
 - A license may be added later; for now the code is here to read, not necessarily to reuse.
-```
