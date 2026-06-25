@@ -11,7 +11,7 @@ import {
 // Helper to create test contacts
 function createContact(
   id: string,
-  stage: "CONTACTED" | "REPLIED" | "TALKING" | "CLOSED",
+  stage: "REQUESTED" | "CONTACTED" | "REPLIED" | "TALKING" | "CLOSED",
   messages: Array<{ id: string; role: "YOU" | "THEM"; text: string }> = []
 ): ContactWithMessages {
   return {
@@ -184,5 +184,38 @@ describe("rollbackMessageAppend", () => {
     expect(rolledBack).toEqual(original);
     expect(rolledBack[0]!.messages).toHaveLength(1);
     expect(modified[0]!.messages).toHaveLength(2);
+  });
+});
+
+describe("REQUESTED stage", () => {
+  it("can move from REQUESTED to CONTACTED", () => {
+    const contacts = [createContact("1", "REQUESTED")];
+
+    const result = applyStageMove(contacts, "1", "CONTACTED");
+
+    expect(result[0]!.stage).toBe("CONTACTED");
+  });
+
+  it("supports all stage transitions from REQUESTED", () => {
+    const contacts = [createContact("1", "REQUESTED")];
+
+    // Can skip to any stage
+    expect(applyStageMove(contacts, "1", "CONTACTED")[0]!.stage).toBe("CONTACTED");
+    expect(applyStageMove(contacts, "1", "REPLIED")[0]!.stage).toBe("REPLIED");
+    expect(applyStageMove(contacts, "1", "TALKING")[0]!.stage).toBe("TALKING");
+    expect(applyStageMove(contacts, "1", "CLOSED")[0]!.stage).toBe("CLOSED");
+  });
+
+  it("can append message to REQUESTED contact", () => {
+    const contacts = [createContact("1", "REQUESTED")];
+
+    const result = applyMessageAppend(contacts, "1", {
+      contactId: "1",
+      role: "YOU",
+      text: "First DM after they accepted",
+    });
+
+    expect(result[0]!.messages).toHaveLength(1);
+    expect(result[0]!.messages[0]!.text).toBe("First DM after they accepted");
   });
 });

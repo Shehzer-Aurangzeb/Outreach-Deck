@@ -4,12 +4,13 @@ import { useState } from "react";
 import type { Stage } from "@prisma/client";
 
 import { useToast } from "@/components/toast";
-import { draftReply } from "@/features/drafting/actions/draft-actions";
+import { draftFirstDM, draftReply } from "@/features/drafting/actions/draft-actions";
 
 import { useUpdateStage, useAddMessage, useDeleteContact } from "../hooks/use-contacts";
 import type { ContactWithMessages } from "./contact-card";
 import { ContactHeader } from "./contact-header";
 import { DeleteFooter } from "./delete-footer";
+import { FirstDMComposer } from "./first-dm-composer";
 import { MessageThread } from "./message-thread";
 import { ReplyComposer } from "./reply-composer";
 import { StageSelector } from "./stage-selector";
@@ -26,11 +27,15 @@ export function ContactDetailModal({ contact, onClose, onDeleted }: ContactDetai
   const [theirReply, setTheirReply] = useState("");
   const [myDraft, setMyDraft] = useState("");
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
+  const [isGeneratingFirstDM, setIsGeneratingFirstDM] = useState(false);
+  const [firstDMDraft, setFirstDMDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const updateStageMutation = useUpdateStage();
   const addMessageMutation = useAddMessage();
   const deleteContactMutation = useDeleteContact();
+
+  const isRequested = contact.stage === "REQUESTED";
 
   const handleStageChange = async (stage: Stage) => {
     if (stage === contact.stage) return;
@@ -70,6 +75,37 @@ export function ContactDetailModal({ contact, onClose, onDeleted }: ContactDetai
       setError(result.error);
     } else {
       setMyDraft(result.draft);
+    }
+  };
+
+  // Draft first DM for REQUESTED contacts after they accept
+  const handleDraftFirstDM = async () => {
+    setIsGeneratingFirstDM(true);
+    setError(null);
+
+    const result = await draftFirstDM(contact.id);
+
+    setIsGeneratingFirstDM(false);
+    if ("error" in result) {
+      setError(result.error);
+    } else {
+      setFirstDMDraft(result.draft);
+    }
+  };
+
+  // Send first DM and move to CONTACTED
+  const handleSendFirstDM = async () => {
+    if (!firstDMDraft.trim()) return;
+
+    const result = await addMessageMutation.mutateAsync({
+      contactId: contact.id,
+      role: "YOU",
+      text: firstDMDraft.trim(),
+    });
+
+    if (!("error" in result)) {
+      setFirstDMDraft("");
+      addToast("First message sent! Moved to Contacted.", "success");
     }
   };
 
@@ -125,20 +161,34 @@ export function ContactDetailModal({ contact, onClose, onDeleted }: ContactDetai
 
         <MessageThread messages={contact.messages} />
 
-        <ReplyComposer
-          theirReply={theirReply}
-          onTheirReplyChange={setTheirReply}
-          onLogTheirReply={handleLogTheirReply}
-          myDraft={myDraft}
-          onMyDraftChange={setMyDraft}
-          onDraftReply={handleDraftReply}
-          onMarkSent={handleMarkSent}
-          onCopySuccess={() => addToast("Copied to clipboard", "success")}
-          isGeneratingReply={isGeneratingReply}
-          isLogging={addMessageMutation.isPending}
-          hasMessages={contact.messages.length > 0}
-          error={error}
-        />
+        {isRequested ? (
+          <FirstDMComposer
+            contactName={contact.name}
+            draft={firstDMDraft}
+            onDraftChange={setFirstDMDraft}
+            onDraftFirstDM={handleDraftFirstDM}
+            onSendFirstDM={handleSendFirstDM}
+            onCopySuccess={() => addToast("Copied to clipboard", "success")}
+            isGenerating={isGeneratingFirstDM}
+            isSending={addMessageMutation.isPending}
+            error={error}
+          />
+        ) : (
+          <ReplyComposer
+            theirReply={theirReply}
+            onTheirReplyChange={setTheirReply}
+            onLogTheirReply={handleLogTheirReply}
+            myDraft={myDraft}
+            onMyDraftChange={setMyDraft}
+            onDraftReply={handleDraftReply}
+            onMarkSent={handleMarkSent}
+            onCopySuccess={() => addToast("Copied to clipboard", "success")}
+            isGeneratingReply={isGeneratingReply}
+            isLogging={addMessageMutation.isPending}
+            hasMessages={contact.messages.length > 0}
+            error={error}
+          />
+        )}
 
         <DeleteFooter
           contactName={contact.name}

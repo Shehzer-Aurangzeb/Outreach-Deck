@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import {
   buildConnectionNotePrompt,
+  buildFirstDMPrompt,
   buildReplyDraftPrompt,
   type ThreadMessage,
   type UserProfile,
@@ -298,5 +299,63 @@ Output VALID JSON only — no markdown, no fences, no commentary:
   } catch (err) {
     console.error("Profile parse error:", err);
     return { error: "Failed to parse profile. Make sure you copied enough text." };
+  }
+}
+
+/**
+ * Draft the first DM for a REQUESTED contact after they accept.
+ * Fuller message (no 200-char limit), same process-intel goal.
+ */
+export async function draftFirstDM(
+  contactId: string
+): Promise<{ draft: string } | { error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const userProfile = await getUserProfile(user.id);
+  if (!userProfile) {
+    return { error: "Profile not found. Please complete your profile first." };
+  }
+
+  try {
+    const contact = await prisma.contact.findFirst({
+      where: { id: contactId, userId: user.id },
+    });
+
+    if (!contact) {
+      return { error: "Contact not found" };
+    }
+
+    const prompt = buildFirstDMPrompt({
+      contactName: contact.name,
+      company: contact.company,
+      angle: contact.angle,
+      profileText: contact.profileText ?? "",
+      userProfile,
+    });
+
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 400,
+      system: prompt.system,
+      messages: prompt.messages,
+    });
+
+    const draft = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === "text")
+      .map((block) => block.text)
+      .join("")
+      .trim();
+
+    return { draft };
+  } catch (err) {
+    console.error("First DM draft error:", err);
+    return { error: "Failed to generate draft" };
   }
 }

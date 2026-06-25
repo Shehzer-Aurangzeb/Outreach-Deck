@@ -1,5 +1,4 @@
-"use client";
-
+import type { Stage } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -32,7 +31,7 @@ export function useUpdateStage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ contactId, stage }: { contactId: string; stage: "CONTACTED" | "REPLIED" | "TALKING" | "CLOSED" }) =>
+    mutationFn: ({ contactId, stage }: { contactId: string; stage: Stage }) =>
       updateContactStage(contactId, stage),
     onMutate: async ({ contactId, stage }) => {
       await queryClient.cancelQueries({ queryKey: contactKeys.list() });

@@ -102,8 +102,11 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
   };
 
   // Step 3: Save to pipeline
-  const handleSaveAndAddToPipeline = async () => {
-    if (!profile || !draft) return;
+  const handleSaveAndAddToPipeline = async (sentWithNote: boolean) => {
+    if (!profile) return;
+
+    // If sent with note, require a draft
+    if (sentWithNote && !draft) return;
 
     setIsSaving(true);
     setError(null);
@@ -118,7 +121,8 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
       angle: search.angle,
       linkedinUrl: profile.linkedinUrl || undefined,
       profileText,
-      firstMessage: draft,
+      firstMessage: sentWithNote ? draft : undefined,
+      sentWithNote,
     });
 
     setIsSaving(false);
@@ -127,7 +131,8 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
       setError(result.error);
       addToast(result.error, "error");
     } else {
-      addToast(`${profile.name} added to pipeline!`, "success");
+      const stageMsg = sentWithNote ? "pipeline" : "Requested";
+      addToast(`${profile.name} added to ${stageMsg}!`, "success");
       onSuccess();
     }
   };

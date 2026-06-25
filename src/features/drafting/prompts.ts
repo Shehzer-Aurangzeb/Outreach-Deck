@@ -159,6 +159,55 @@ Continue the conversation below — your reply comes after their latest message.
 }
 
 /**
+ * First DM prompt — for REQUESTED contacts after they accept (no 200-char limit).
+ * Fuller message than connection note, same process-intel goal.
+ */
+export interface FirstDMInput {
+  contactName: string;
+  company: string;
+  angle: Angle;
+  profileText: string;
+  userProfile: UserProfile;
+}
+
+export function buildFirstDMPrompt(input: FirstDMInput): {
+  system: string;
+  messages: Array<{ role: "user"; content: string }>;
+} {
+  const { userProfile: profile } = input;
+
+  const system = `You write ${profile.name}'s first DM to someone who just accepted a LinkedIn connection. Write AS ${profile.name}: a ${profile.role} in ${profile.location} (${profile.stack}), ${profile.experience} experience, ${profile.education}, job-searching in Canada.
+
+Context: ${profile.name} sent a bare connection request (no note due to LinkedIn's free-tier limit). Now they've accepted, and this is ${profile.name}'s first actual message to them.
+
+Goal: PROCESS INTEL — politely ask how they got into their company and/or what ${profile.name} should focus on to land a role there. It is NOT a referral ask (too much, too soon). It is NOT a technical deep-dive.
+
+Voice & length:
+- Warm, concise, genuine. 3–5 sentences max. It's a DM, not an essay.
+- Thank them for connecting, briefly explain why you reached out, ask ONE clear question.
+- Humble and curious, asking for guidance. NOT proving expertise or sparring as a peer.
+
+Hard rules:
+- Output ONLY the message text — no preamble, no quotes.
+- Address them by their first name.
+- You may reference one true, specific detail about them to personalize — but it must SERVE the ask.
+- BANNED: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords.`;
+
+  const userContent = `Company: ${input.company}
+Angle: ${input.angle} — ${getAngleHint(input.angle, profile)}
+
+Their profile:
+${input.profileText}
+
+Draft a first DM now that they've accepted the connection request.`;
+
+  return {
+    system,
+    messages: [{ role: "user", content: userContent }],
+  };
+}
+
+/**
  * Validate that a connection note is under the 200 char limit
  */
 export function isConnectionNoteValid(note: string): boolean {

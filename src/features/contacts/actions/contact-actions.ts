@@ -12,7 +12,8 @@ const createContactSchema = z.object({
   angle: z.enum(["ALUM", "STACK", "RECRUITER"]),
   linkedinUrl: z.string().url().optional().or(z.literal("")),
   profileText: z.string().optional(),
-  firstMessage: z.string().min(1, "Connection note is required"),
+  firstMessage: z.string().optional(), // The connection note (may be empty if sent without note)
+  sentWithNote: z.boolean().default(true), // true = note sent, false = bare request
 });
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;
@@ -36,6 +37,11 @@ export async function createContact(
 
   const data = parsed.data;
 
+  // If sent with note, require a message
+  if (data.sentWithNote && !data.firstMessage?.trim()) {
+    return { error: "Connection note is required when sending with a note" };
+  }
+
   try {
     const contact = await prisma.contact.create({
       data: {
@@ -45,13 +51,19 @@ export async function createContact(
         angle: data.angle,
         linkedinUrl: data.linkedinUrl || null,
         profileText: data.profileText || null,
-        stage: "CONTACTED",
-        messages: {
-          create: {
-            role: "YOU",
-            text: data.firstMessage,
-          },
-        },
+        // REQUESTED = bare request (waiting for accept), CONTACTED = note sent (message landed)
+        stage: data.sentWithNote ? "CONTACTED" : "REQUESTED",
+        // Only log message if note was actually sent
+        ...(data.sentWithNote && data.firstMessage
+          ? {
+              messages: {
+                create: {
+                  role: "YOU",
+                  text: data.firstMessage,
+                },
+              },
+            }
+          : {}),
       },
     });
 
@@ -106,7 +118,14 @@ export async function addMessage(
         },
       });
 
-      if (role === "THEM" && contact.stage === "CONTACTED") {
+      // Auto-advance stage based on message flow
+      // REQUESTED + YOU message = they accepted, now we've messaged them → CONTACTED
+      if (role === "YOU" && contact.stage === "REQUESTED") {
+        await tx.contact.update({
+          where: { id: contactId },
+          data: { stage: "CONTACTED" },
+        });
+      } else if (role === "THEM" && contact.stage === "CONTACTED") {
         await tx.contact.update({
           where: { id: contactId },
           data: { stage: "REPLIED" },
@@ -130,7 +149,7 @@ export async function addMessage(
 
 export async function updateContactStage(
   contactId: string,
-  stage: "CONTACTED" | "REPLIED" | "TALKING" | "CLOSED"
+  stage: "REQUESTED" | "CONTACTED" | "REPLIED" | "TALKING" | "CLOSED"
 ): Promise<{ success: boolean } | { error: string }> {
   const supabase = await createClient();
   const {

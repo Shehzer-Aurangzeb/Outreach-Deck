@@ -3,14 +3,14 @@
 import { useState } from "react";
 
 import { CharCounter } from "@/components/char-counter";
-import { CheckIcon, CopyIcon, RefreshIcon, SendIcon } from "@/components/icons";
+import { CheckIcon, CopyIcon, RefreshIcon, SendIcon, UserPlusIcon } from "@/components/icons";
 
 interface DraftStepProps {
   profileName: string;
   draft: string;
   onDraftChange: (draft: string) => void;
   onRegenerate: () => void;
-  onSave: () => void;
+  onSave: (sentWithNote: boolean) => void;
   onBackToReview: () => void;
   isGenerating: boolean;
   isSaving: boolean;
@@ -27,9 +27,10 @@ export function DraftStep({
   isSaving,
 }: DraftStepProps) {
   const [copied, setCopied] = useState(false);
+  const [sentWithNote, setSentWithNote] = useState(true);
 
   const charCount = draft.length;
-  const isOverLimit = charCount > 200;
+  const isOverLimit = sentWithNote && charCount > 200;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(draft);
@@ -62,7 +63,7 @@ export function DraftStep({
           <label className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
             Your Message
           </label>
-          <CharCounter current={charCount} max={200} />
+          {sentWithNote && <CharCounter current={charCount} max={200} />}
         </div>
         <textarea
           value={draft}
@@ -82,6 +83,49 @@ export function DraftStep({
         )}
       </div>
 
+      {/* Send Type Toggle */}
+      <div
+        className="p-4 rounded-xl"
+        style={{ backgroundColor: "var(--color-raised)", border: "1px solid var(--color-edge)" }}
+      >
+        <label className="text-sm font-medium mb-3 block" style={{ color: "var(--color-text)" }}>
+          How did you send the request?
+        </label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setSentWithNote(true)}
+            className="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+            style={{
+              backgroundColor: sentWithNote ? "var(--color-accent)" : "var(--color-base)",
+              color: sentWithNote ? "white" : "var(--color-muted)",
+              border: sentWithNote ? "none" : "1px solid var(--color-edge)",
+            }}
+          >
+            <SendIcon className="w-4 h-4" />
+            With note
+          </button>
+          <button
+            type="button"
+            onClick={() => setSentWithNote(false)}
+            className="flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
+            style={{
+              backgroundColor: !sentWithNote ? "var(--color-warning)" : "var(--color-base)",
+              color: !sentWithNote ? "white" : "var(--color-muted)",
+              border: !sentWithNote ? "none" : "1px solid var(--color-edge)",
+            }}
+          >
+            <UserPlusIcon className="w-4 h-4" />
+            No note (bare request)
+          </button>
+        </div>
+        {!sentWithNote && (
+          <p className="text-xs mt-2" style={{ color: "var(--color-muted)" }}>
+            Contact will be added to &ldquo;Requested&rdquo; stage. Once they accept, you can draft your first DM.
+          </p>
+        )}
+      </div>
+
       {/* Action Buttons */}
       <div className="flex gap-3">
         <button
@@ -97,29 +141,31 @@ export function DraftStep({
         >
           <RefreshIcon className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
         </button>
+        {sentWithNote && (
+          <button
+            onClick={handleCopy}
+            className="flex-1 h-12 rounded-xl font-medium transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+            style={{
+              backgroundColor: copied ? "var(--color-success)" : "var(--color-raised)",
+              color: copied ? "white" : "var(--color-text)",
+              border: copied ? "none" : "1px solid var(--color-edge)",
+            }}
+          >
+            {copied ? (
+              <>
+                <CheckIcon className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <CopyIcon className="w-4 h-4" />
+                Copy
+              </>
+            )}
+          </button>
+        )}
         <button
-          onClick={handleCopy}
-          className="flex-1 h-12 rounded-xl font-medium transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: copied ? "var(--color-success)" : "var(--color-raised)",
-            color: copied ? "white" : "var(--color-text)",
-            border: copied ? "none" : "1px solid var(--color-edge)",
-          }}
-        >
-          {copied ? (
-            <>
-              <CheckIcon className="w-4 h-4" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <CopyIcon className="w-4 h-4" />
-              Copy
-            </>
-          )}
-        </button>
-        <button
-          onClick={onSave}
+          onClick={() => onSave(sentWithNote)}
           disabled={isSaving || isOverLimit}
           className="flex-1 h-12 rounded-xl font-medium disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
           style={{
@@ -128,7 +174,7 @@ export function DraftStep({
           }}
         >
           <SendIcon className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Mark Sent → Pipeline"}
+          {isSaving ? "Saving..." : sentWithNote ? "Mark Sent → Pipeline" : "Add to Requested"}
         </button>
       </div>
 

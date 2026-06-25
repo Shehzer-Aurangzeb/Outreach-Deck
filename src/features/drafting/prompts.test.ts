@@ -43,7 +43,7 @@ describe("buildConnectionNotePrompt", () => {
       userProfile: TEST_PROFILE,
     });
 
-    expect(result.system).toContain("BANNED openers/phrases");
+    expect(result.system).toContain("BANNED:");
     expect(result.system).toContain("I hope this finds you well");
     expect(result.system).toContain("I came across your profile");
   });

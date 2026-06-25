@@ -7,6 +7,7 @@ import { ErrorState } from "@/components/error-state";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  ClockIcon,
   MessageIcon,
   MessagesIcon,
   SendIcon,
@@ -21,6 +22,12 @@ import { ContactDetailModal } from "./contact-detail-modal";
 import { PipelineColumn } from "./pipeline-column";
 
 const STAGE_CONFIG: Record<Stage, { label: string; color: string; bg: string; icon: React.FC<{ className?: string; style?: React.CSSProperties }> }> = {
+  REQUESTED: {
+    label: "Requested",
+    color: "var(--color-warning)",
+    bg: "var(--color-warning-subtle)",
+    icon: ClockIcon
+  },
   CONTACTED: { 
     label: "Contacted", 
     color: "var(--color-muted)", 
@@ -47,7 +54,7 @@ const STAGE_CONFIG: Record<Stage, { label: string; color: string; bg: string; ic
   },
 };
 
-const STAGE_ORDER: Stage[] = ["CONTACTED", "REPLIED", "TALKING", "CLOSED"];
+const STAGE_ORDER: Stage[] = ["REQUESTED", "CONTACTED", "REPLIED", "TALKING", "CLOSED"];
 
 export function PipelineView() {
   const { data: contacts = [], isLoading, error, refetch } = useContacts();

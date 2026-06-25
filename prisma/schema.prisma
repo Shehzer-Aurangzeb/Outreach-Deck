@@ -53,6 +53,7 @@ enum Angle {
 }
 
 enum Stage {
+  REQUESTED
   CONTACTED
   REPLIED
   TALKING
