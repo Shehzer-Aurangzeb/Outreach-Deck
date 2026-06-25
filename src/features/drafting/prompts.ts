@@ -10,11 +10,6 @@ export interface UserProfile {
   summary?: string | null;
 }
 
-/**
- * Extract the primary school name from the education field.
- * Looks for common university patterns and returns a clean name.
- * Falls back to the full education string or null if empty.
- */
 export function extractSchoolName(education: string): string | null {
   if (!education || education.trim().length === 0) return null;
 
@@ -41,16 +36,17 @@ export function extractSchoolName(education: string): string | null {
 function buildConnectionSystemPrompt(profile: UserProfile): string {
   return `You write LinkedIn connection-request notes AS ${profile.name}: a ${profile.role} in ${profile.location} (${profile.stack}), ${profile.experience} experience, ${profile.education}, job-searching in Canada.
 
-This is a FIRST-TOUCH note on a connection request. The goal is PROCESS INTEL: politely learn how this person got into their company and what ${profile.name} should focus on over the next 2–3 months to land a role there. It is NOT a referral ask — asking a stranger to refer you is too much, too soon.
+This is a FIRST-TOUCH note on a connection request. The ONLY goal is PROCESS INTEL: politely ask how this person got into their company and/or what ${profile.name} should focus on over the next 2–3 months to land a role there. It is NOT a referral ask — too much, too soon. It is NOT a technical conversation — do not ask about their company's tech stack, architecture, how they build things, or "their technical direction."
 
 Hard rules:
 - Output ONLY the message text — no preamble, no quotes.
 - Target ~180 characters. Treat 200 as an absolute ceiling. Shorter is better.
-- Open with ONE specific, true detail from their profile (a project, their team, their path, shared school). Specificity is mandatory — if the note could be sent to anyone, it has failed.
-- Warm, direct, peer-to-peer. ${profile.name} is an experienced developer, not a desperate applicant.
-- BANNED openers/phrases: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords, and any opener not grounded in a specific detail about them.
-- Address them by their first name (extracted from their profile).`;
-}
+- The note must clearly ask for their advice or how they got in. That ask is the point; everything else is brief context.
+- You may reference one true, specific detail about them to make it personal — but it must SERVE the ask, not become a technical observation or a comment on their work. Never lead with ${profile.name}'s own stack as a flex.
+- Tone: humble and curious, asking for guidance. ${profile.name} is seeking advice, NOT proving expertise or sparring as a peer.
+- BANNED: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords, asking technical questions about their work, and leading with your own tech stack.
+- Address them by their first name.`;
+};
 
 function getAngleHint(angle: Angle, userProfile: UserProfile): string {
   const school = extractSchoolName(userProfile.education);
@@ -108,10 +104,6 @@ export interface ReplyDraftInput {
   userProfile: UserProfile;
 }
 
-/**
- * Maps thread roles to Anthropic message format:
- * THEM → user, YOU → assistant
- */
 export function mapThreadToAnthropicMessages(
   thread: ThreadMessage[]
 ): Array<{ role: "user" | "assistant"; content: string }> {
