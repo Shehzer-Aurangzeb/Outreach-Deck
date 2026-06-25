@@ -1,0 +1,95 @@
+// Supabase provides the Postgres instance + auth.users table.
+// We key our rows to the Supabase auth user id (uuid stored as text).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  userId    String   // owner (supabase auth uid)
+  name      String
+  city      String?
+  tier      Tier     @default(MID)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+enum Tier {
+  MID
+  CONSULTANCY
+  LARGE
+}
+
+model Contact {
+  id          String    @id @default(cuid())
+  userId      String    // owner
+  name        String
+  company     String    // free text (denormalized; simple for v1)
+  angle       Angle     @default(STACK)
+  stage       Stage     @default(CONTACTED)
+  linkedinUrl String?
+  profileText String?   @db.Text // pasted profile, kept for redraft context
+  nextStep    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  messages    Message[]
+
+  @@index([userId])
+  @@index([userId, stage])
+}
+
+enum Angle {
+  ALUM
+  STACK
+  RECRUITER
+}
+
+enum Stage {
+  CONTACTED
+  REPLIED
+  TALKING
+  CLOSED
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  role      Role     // YOU or THEM
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([contactId])
+}
+
+enum Role {
+  YOU
+  THEM
+}
+
+model Profile {
+  id           String    @id @default(cuid())
+  userId       String    @unique // one profile per user
+  name         String
+  role         String
+  location     String
+  stack        String    // tech/domain skills as a string
+  experience   String    // e.g. "~4 years"
+  education    String
+  summary      String?   @db.Text // 1-2 sentence positioning line
+  cvFileUrl    String?   // Supabase Storage URL for the uploaded CV
+  cvFileName   String?   // Original filename for display
+  cvUploadedAt DateTime? // When the CV was uploaded
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+}
