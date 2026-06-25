@@ -1,18 +1,52 @@
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const redirectTo = searchParams.get("redirectTo") ?? "/";
+  const token_hash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
+  const redirectTo = searchParams.get("redirectTo") ?? searchParams.get("next") ?? "/";
 
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Handle PKCE flow (code parameter)
   if (code) {
-    const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-
     if (!error) {
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
+    console.error("Code exchange error:", error.message);
+  }
+
+  // Handle token hash flow (email link with token_hash)
+  if (token_hash && type) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as "email" | "magiclink",
+    });
+    if (!error) {
+      return NextResponse.redirect(`${origin}${redirectTo}`);
+    }
+    console.error("Token hash verify error:", error.message);
   }
 
   return NextResponse.redirect(`${origin}/login?error=Could not authenticate`);
