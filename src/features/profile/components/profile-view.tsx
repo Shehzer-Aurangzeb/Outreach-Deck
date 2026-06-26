@@ -94,23 +94,23 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
+    <div className="max-w-3xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
           <h1
-            className="text-2xl font-bold mb-1"
+            className="text-xl sm:text-2xl font-bold mb-1"
             style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
           >
             Your Profile
           </h1>
-          <p style={{ color: "var(--color-muted)" }}>
+          <p className="text-sm sm:text-base" style={{ color: "var(--color-muted)" }}>
             This information is used to personalize your outreach messages
           </p>
         </div>
         <button
           onClick={onEdit}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors w-full sm:w-auto"
           style={{
             backgroundColor: "var(--color-accent)",
             color: "white",
@@ -131,14 +131,14 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
       >
         {/* Profile Header */}
         <div
-          className="px-6 py-5 flex items-center gap-4"
+          className="px-4 sm:px-6 py-4 sm:py-5 flex items-center gap-3 sm:gap-4"
           style={{
             backgroundColor: "var(--color-raised)",
             borderBottom: "1px solid var(--color-edge)",
           }}
         >
           <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center text-xl font-bold"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center text-lg sm:text-xl font-bold flex-shrink-0"
             style={{
               backgroundColor: "var(--color-accent-subtle)",
               color: "var(--color-accent)",
@@ -151,19 +151,19 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
               .slice(0, 2)
               .toUpperCase()}
           </div>
-          <div>
+          <div className="min-w-0">
             <h2
-              className="text-xl font-semibold"
+              className="text-lg sm:text-xl font-semibold truncate"
               style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
             >
               {profile.name}
             </h2>
-            <p style={{ color: "var(--color-muted)" }}>{profile.role}</p>
+            <p className="text-sm sm:text-base truncate" style={{ color: "var(--color-muted)" }}>{profile.role}</p>
           </div>
         </div>
 
         {/* Profile Details */}
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
           <ProfileField icon={<MapPinIcon />} label="Location" value={profile.location} />
           <ProfileField icon={<CodeIcon />} label="Tech Stack" value={profile.stack} />
           <ProfileField icon={<BriefcaseIcon />} label="Experience" value={profile.experience} />
@@ -176,7 +176,7 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
 
       {/* CV Section */}
       <div
-        className="rounded-2xl p-6"
+        className="rounded-2xl p-4 sm:p-6"
         style={{
           backgroundColor: "var(--color-base)",
           border: "1px solid var(--color-edge)",
@@ -191,10 +191,10 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
           className="hidden"
         />
 
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-start gap-3 sm:gap-4">
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{
                 backgroundColor: profile.cvFileName
                   ? "var(--color-success-subtle)"
@@ -202,22 +202,22 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
               }}
             >
               <DocumentIcon
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 style={{
                   color: profile.cvFileName ? "var(--color-success)" : "var(--color-muted)",
                 }}
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <h3
-                className="font-semibold mb-1"
+                className="font-semibold mb-1 text-sm sm:text-base"
                 style={{ color: "var(--color-bright)" }}
               >
                 {profile.cvFileName ? "CV on File" : "No CV Uploaded"}
               </h3>
               {profile.cvFileName ? (
                 <>
-                  <p className="text-sm" style={{ color: "var(--color-text)" }}>
+                  <p className="text-sm truncate" style={{ color: "var(--color-text)" }}>
                     {profile.cvFileName}
                   </p>
                   {profile.cvUploadedAt && (
@@ -234,12 +234,12 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-13 sm:ml-0">
             {/* Upload / Replace button */}
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-colors flex-1 sm:flex-none"
               style={{
                 backgroundColor: profile.cvFileName ? "var(--color-surface)" : "var(--color-accent)",
                 color: profile.cvFileName ? "var(--color-text)" : "white",
@@ -249,7 +249,8 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
               {isUploading ? (
                 <>
                   <SpinnerIcon className="w-4 h-4 animate-spin" />
-                  Processing...
+                  <span className="hidden sm:inline">Processing...</span>
+                  <span className="sm:hidden">...</span>
                 </>
               ) : (
                 <>
@@ -264,7 +265,7 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
               <button
                 onClick={handleDownload}
                 disabled={downloadCv.isPending}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-colors flex-1 sm:flex-none"
                 style={{
                   backgroundColor: "var(--color-surface)",
                   color: "var(--color-text)",
@@ -290,7 +291,7 @@ export function ProfileView({ profile, onEdit, onEditWithCv }: ProfileViewProps)
       </div>
 
       {/* Timestamps */}
-      <div className="mt-6 flex items-center justify-between text-xs" style={{ color: "var(--color-ghost)" }}>
+      <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs" style={{ color: "var(--color-ghost)" }}>
         <span>Profile created {formatDate(profile.createdAt)}</span>
         <span>Last updated {formatDate(profile.updatedAt)}</span>
       </div>

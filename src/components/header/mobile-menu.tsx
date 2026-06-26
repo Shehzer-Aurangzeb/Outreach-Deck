@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 
 import { LogOutIcon } from "@/components/icons";
@@ -9,19 +10,46 @@ import { NAV_ITEMS } from "./constants";
 interface MobileMenuProps {
   pathname: string;
   userEmail: string;
+  isOpen: boolean;
   onClose: () => void;
 }
 
-export function MobileMenu({ pathname, userEmail, onClose }: MobileMenuProps) {
+export function MobileMenu({ pathname, userEmail, isOpen, onClose }: MobileMenuProps) {
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
-    <div
-      className="md:hidden border-t animate-fade-in"
-      style={{
-        backgroundColor: "var(--color-base)",
-        borderColor: "var(--color-edge)",
-      }}
-    >
-      <div className="px-4 py-3 space-y-1">
+    <>
+      {/* Backdrop */}
+      <div
+        className={`md:hidden fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Menu Panel */}
+      <div
+        className={`md:hidden fixed top-14 left-0 right-0 z-50 transition-all duration-300 ease-out ${
+          isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        }`}
+        style={{
+          backgroundColor: "var(--color-base)",
+          borderBottom: "1px solid var(--color-edge)",
+          boxShadow: isOpen ? "0 4px 20px rgba(0, 0, 0, 0.3)" : "none",
+        }}
+      >
+        <div className="px-4 py-3 space-y-1 max-h-[calc(100vh-3.5rem)] overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href;
           return (
@@ -68,7 +96,8 @@ export function MobileMenu({ pathname, userEmail, onClose }: MobileMenuProps) {
             </button>
           </form>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -91,9 +91,9 @@ export function TodayView() {
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="animate-pulse space-y-6">
+        <div className="animate-pulse space-y-4 sm:space-y-6">
           <div className="h-24 rounded-xl" style={{ backgroundColor: "var(--color-base)" }} />
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-64 rounded-xl" style={{ backgroundColor: "var(--color-base)" }} />
             ))}
@@ -114,7 +114,7 @@ export function TodayView() {
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div
-          className="rounded-2xl p-8 md:p-12 mb-8 relative overflow-hidden"
+          className="rounded-2xl p-6 sm:p-8 md:p-12 mb-6 sm:mb-8 relative overflow-hidden"
           style={{
             backgroundColor: "var(--color-base)",
             border: "1px solid var(--color-edge)",
@@ -134,21 +134,21 @@ export function TodayView() {
             </div>
             
             <h1
-              className="text-3xl md:text-4xl font-bold mb-3"
+              className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3"
               style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
             >
               Ready to find connections?
             </h1>
             <p
-              className="text-lg mb-8 max-w-xl"
+              className="text-base sm:text-lg mb-6 sm:mb-8 max-w-xl"
               style={{ color: "var(--color-muted)" }}
             >
               Add some target companies to generate 3 targeted LinkedIn searches. Each search uses a different angle to maximize your chances.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/companies" className="btn btn-primary px-6 py-3 text-base text-center flex items-center justify-center gap-2">
-                <SparklesIcon className="w-5 h-5" />
+              <a href="/companies" className="btn btn-primary px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-center flex items-center justify-center gap-2">
+                <SparklesIcon className="w-4 sm:w-5 h-4 sm:h-5" />
                 Add Companies
               </a>
             </div>
@@ -156,7 +156,7 @@ export function TodayView() {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-3 mb-6 sm:mb-8">
           <FeatureCard
             icon={<SearchIcon className="w-6 h-6" />}
             title="Smart Targeting"
@@ -197,10 +197,10 @@ export function TodayView() {
   // Main view with searches
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header Card */}
         <div
-          className="rounded-xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          className="rounded-xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           style={{
             backgroundColor: "var(--color-base)",
             border: "1px solid var(--color-edge)",
@@ -214,7 +214,7 @@ export function TodayView() {
               </span>
             </div>
             <h1
-              className="text-2xl font-bold"
+              className="text-xl sm:text-2xl font-bold"
               style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
             >
               Today&apos;s Searches
@@ -247,7 +247,7 @@ export function TodayView() {
         </div>
 
         {/* Search Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
           {searches.map((search, index) => (
             <SearchCard
               key={`${search.company.id}-${search.angle}-${index}`}

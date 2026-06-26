@@ -21,7 +21,7 @@ export function PipelineColumn({ stage, config, contacts, onContactClick }: Pipe
 
   return (
     <div
-      className="w-72 flex-shrink-0 rounded-xl overflow-hidden flex flex-col md:w-full md:flex-shrink"
+      className="w-64 sm:w-72 flex-shrink-0 rounded-xl overflow-hidden flex flex-col md:w-full md:flex-shrink"
       style={{ 
         backgroundColor: "var(--color-base)",
         border: "1px solid var(--color-edge)",
@@ -29,7 +29,7 @@ export function PipelineColumn({ stage, config, contacts, onContactClick }: Pipe
     >
       {/* Column Header */}
       <div
-        className="p-4 flex items-center justify-between"
+        className="p-3 sm:p-4 flex items-center justify-between"
         style={{ 
           backgroundColor: config.bg,
           borderBottom: "1px solid var(--color-edge)",

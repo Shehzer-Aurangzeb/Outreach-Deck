@@ -175,18 +175,17 @@ export function CompaniesView() {
 
   return (
     <div
-      className="min-h-screen p-6"
       style={{ backgroundColor: "var(--color-void)", color: "var(--color-text)" }}
     >
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1
-              className="text-2xl font-bold flex items-center gap-3"
+              className="text-xl sm:text-2xl font-bold flex items-center gap-2 sm:gap-3"
               style={{ color: "var(--color-accent)", fontFamily: "var(--font-display)" }}
             >
-              <BuildingIcon className="w-6 h-6" />
+              <BuildingIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               Companies
             </h1>
             <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
@@ -198,13 +197,13 @@ export function CompaniesView() {
               <button
                 onClick={() => seedMutation.mutate()}
                 disabled={seedMutation.isPending}
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary text-xs sm:text-sm flex-1 sm:flex-none"
               >
                 {seedMutation.isPending ? "Restoring..." : "Restore Defaults"}
               </button>
             )}
-            <button onClick={openCreateModal} className="btn btn-primary">
-              <PlusIcon className="w-4 h-4 mr-1.5 inline" />
+            <button onClick={openCreateModal} className="btn btn-primary text-sm flex-1 sm:flex-none">
+              <PlusIcon className="w-4 h-4 mr-1 sm:mr-1.5 inline" />
               Add Company
             </button>
           </div>

@@ -7,10 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function TodayPage() {
-  return (
-    <main className="px-6 py-8">
-      <TodayView />
-    </main>
-  );
+  return <TodayView />;
 }
 

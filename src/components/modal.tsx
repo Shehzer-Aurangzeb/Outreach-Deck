@@ -19,12 +19,12 @@ export function Modal({ children, onClose }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="card p-6 w-full max-w-md animate-fade-in"
+        className="card p-4 sm:p-6 w-full max-w-md animate-fade-in"
         style={{ backgroundColor: "var(--color-base)" }}
       >
         {children}

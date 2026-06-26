@@ -40,7 +40,7 @@ export default async function AppLayout({
       <AppHeaderClient userEmail={user.email ?? "User"} />
       
       {/* Main content */}
-      <main className="px-4 sm:px-6 py-6">
+      <main className="px-3 sm:px-6 py-4 sm:py-6">
         {children}
       </main>
     </div>

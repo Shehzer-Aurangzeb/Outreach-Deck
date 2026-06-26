@@ -101,11 +101,11 @@ export function PipelineView() {
   if (isLoading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="animate-pulse space-y-6">
+        <div className="animate-pulse space-y-4 sm:space-y-6">
           <div className="h-24 rounded-xl" style={{ backgroundColor: "var(--color-base)" }} />
-          <div className="grid gap-4 grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-96 rounded-xl" style={{ backgroundColor: "var(--color-base)" }} />
+              <div key={i} className="h-64 sm:h-96 rounded-xl" style={{ backgroundColor: "var(--color-base)" }} />
             ))}
           </div>
         </div>
@@ -120,31 +120,31 @@ export function PipelineView() {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header Card */}
         <div
-          className="rounded-xl p-6"
+          className="rounded-xl p-4 sm:p-6"
           style={{
             backgroundColor: "var(--color-base)",
             border: "1px solid var(--color-edge)",
           }}
         >
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center"
                 style={{ backgroundColor: "var(--color-accent-subtle)" }}
               >
-                <UsersIcon className="w-6 h-6" style={{ color: "var(--color-accent)" }} />
+                <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "var(--color-accent)" }} />
               </div>
               <div>
                 <h1
-                  className="text-2xl font-bold"
+                  className="text-xl sm:text-2xl font-bold"
                   style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
                 >
                   Pipeline
                 </h1>
-                <p className="text-sm" style={{ color: "var(--color-muted)" }}>
+                <p className="text-xs sm:text-sm" style={{ color: "var(--color-muted)" }}>
                   Track your outreach conversations
                 </p>
               </div>
@@ -152,9 +152,9 @@ export function PipelineView() {
 
             {/* Quick Stats */}
             {contacts.length > 0 && (
-              <div className="flex gap-6">
+              <div className="flex gap-4 sm:gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold" style={{ color: "var(--color-bright)" }}>
+                  <div className="text-xl sm:text-2xl font-bold" style={{ color: "var(--color-bright)" }}>
                     {stats.total}
                   </div>
                   <div className="text-xs" style={{ color: "var(--color-muted)" }}>
@@ -162,7 +162,7 @@ export function PipelineView() {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold" style={{ color: "var(--color-info)" }}>
+                  <div className="text-xl sm:text-2xl font-bold" style={{ color: "var(--color-info)" }}>
                     {stats.replyRate}%
                   </div>
                   <div className="text-xs" style={{ color: "var(--color-muted)" }}>
@@ -170,7 +170,7 @@ export function PipelineView() {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold" style={{ color: "var(--color-success)" }}>
+                  <div className="text-xl sm:text-2xl font-bold" style={{ color: "var(--color-success)" }}>
                     {stats.closed}
                   </div>
                   <div className="text-xs" style={{ color: "var(--color-muted)" }}>
@@ -216,8 +216,8 @@ export function PipelineView() {
           </div>
         ) : (
           /* Kanban Board */
-          <div className="overflow-x-auto -mx-4 px-4 pb-4">
-            <div className="flex gap-4 min-w-max md:min-w-0 md:grid md:grid-cols-2 lg:grid-cols-4">
+          <div className="overflow-x-auto -mx-3 sm:-mx-4 px-3 sm:px-4 pb-4">
+            <div className="flex gap-3 sm:gap-4 min-w-max md:min-w-0 md:grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
               {STAGE_ORDER.map((stage) => (
                 <PipelineColumn
                   key={stage}

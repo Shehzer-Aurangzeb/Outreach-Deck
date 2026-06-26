@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PipelinePage() {
-  return (
-    <main className="px-6 py-8 h-[calc(100vh-4rem)]">
-      <PipelineView />
-    </main>
-  );
+  return <PipelineView />;
 }

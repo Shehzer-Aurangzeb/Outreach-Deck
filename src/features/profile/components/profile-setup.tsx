@@ -147,16 +147,16 @@ export function ProfileSetup({ existingProfile, uploadedCvData, onCancel }: Prof
 
   
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
+    <div className="max-w-2xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <h1
-          className="text-2xl font-bold mb-2"
+          className="text-xl sm:text-2xl font-bold mb-2"
           style={{ color: "var(--color-bright)", fontFamily: "var(--font-display)" }}
         >
           {existingProfile ? "Update Your Profile" : "Complete Your Profile"}
         </h1>
-        <p style={{ color: "var(--color-muted)" }}>
+        <p className="text-sm sm:text-base" style={{ color: "var(--color-muted)" }}>
           {existingProfile
             ? "Update your information or upload a new CV"
             : "Set up your profile so the AI can personalize your connection notes and messages"}
@@ -294,11 +294,11 @@ export function ProfileSetup({ existingProfile, uploadedCvData, onCancel }: Prof
             multiline
           />
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 pt-4">
             <button
               type="button"
               onClick={handleBack}
-              className="px-4 py-3 rounded-lg font-medium transition-colors"
+              className="px-4 py-3 rounded-lg font-medium transition-colors text-center"
               style={{
                 backgroundColor: "var(--color-surface)",
                 color: "var(--color-text)",

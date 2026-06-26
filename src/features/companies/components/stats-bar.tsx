@@ -15,7 +15,7 @@ interface StatsBarProps {
 export function StatsBar({ stats }: StatsBarProps) {
   return (
     <div
-      className="rounded-lg p-4 grid grid-cols-2 sm:grid-cols-5 gap-4"
+      className="rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4"
       style={{ backgroundColor: "var(--color-base)", border: "1px solid var(--color-edge)" }}
     >
       <StatCard label="Total" value={stats.total} />

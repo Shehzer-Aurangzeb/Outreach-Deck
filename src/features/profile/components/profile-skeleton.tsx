@@ -1,7 +1,7 @@
 export function ProfileSkeleton() {
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      <div className="animate-pulse space-y-6">
+    <div className="max-w-3xl mx-auto">
+      <div className="animate-pulse space-y-4 sm:space-y-6">
         <div className="flex justify-between">
           <div className="space-y-2">
             <div className="h-8 w-48 rounded" style={{ backgroundColor: "var(--color-surface)" }} />

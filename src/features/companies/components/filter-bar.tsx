@@ -35,7 +35,7 @@ export function FilterBar({
   const hasActiveFilters = searchQuery || selectedTier !== "ALL" || selectedCity !== "ALL";
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Search Row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <SearchInput
@@ -50,7 +50,7 @@ export function FilterBar({
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value as SortOption)}
-            className="input appearance-none pr-10 cursor-pointer"
+            className="input appearance-none pr-10 cursor-pointer w-full sm:w-auto"
             style={{ height: "44px", minWidth: "160px" }}
           >
             {SORT_OPTIONS.map((opt) => (
@@ -87,8 +87,8 @@ export function FilterBar({
           </FilterChip>
         ))}
 
-        {/* Divider */}
-        <div className="w-px h-6 mx-1" style={{ backgroundColor: "var(--color-edge)" }} />
+        {/* Divider - hidden on very small screens */}
+        <div className="hidden sm:block w-px h-6 mx-1" style={{ backgroundColor: "var(--color-edge)" }} />
 
         {/* City Filter */}
         <div className="relative">
