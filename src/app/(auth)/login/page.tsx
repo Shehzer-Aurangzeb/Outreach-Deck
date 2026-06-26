@@ -128,7 +128,7 @@ export default function LoginPage() {
                   marginBottom: "4px",
                 }}
               >
-                We sent a sign-in link to
+                We sent a link to
               </p>
               <p className="font-medium" style={{ color: "var(--color-text)" }}>
                 {email}
@@ -200,7 +200,7 @@ export default function LoginPage() {
                 className="text-center mt-5"
                 style={{ color: "var(--color-ghost)", fontSize: "var(--text-xs)" }}
               >
-                We'll send you a magic link to sign in.
+                We'll email you a link to sign in.
               </p>
             </form>
           )}
