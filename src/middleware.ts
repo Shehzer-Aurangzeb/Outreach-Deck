@@ -4,7 +4,57 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 const publicRoutes = ["/login", "/auth/callback"];
 
+/**
+ * Password protection gate — runs before Supabase auth.
+ * Similar to Vercel's password protection (password-only, no username).
+ * Returns a 401 response if password is missing/invalid.
+ * Returns null if auth passes (continue to normal flow).
+ */
+function checkPasswordProtection(request: NextRequest): NextResponse | null {
+  const password = process.env.SITE_AUTH_PASSWORD;
+
+  // Fail safe: if env var not set, block all access.
+  // This prevents accidentally exposing the site if someone forgets to set the password.
+  if (!password) {
+    return new NextResponse("Site password not configured", {
+      status: 503,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+
+  const authHeader = request.headers.get("authorization");
+
+  if (authHeader) {
+    // Format: "Basic <base64(user:password)>" — we use empty username
+    const [scheme, encoded] = authHeader.split(" ");
+    if (scheme === "Basic" && encoded) {
+      // Edge runtime: use btoa/atob instead of Buffer
+      // Empty username, password only (like Vercel's protection)
+      const expected = btoa(`:${password}`);
+      if (encoded === expected) {
+        return null; // Auth passed, continue
+      }
+    }
+  }
+
+  // Missing or invalid password — prompt for login
+  return new NextResponse("Password required", {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": 'Basic realm="Protected Site", charset="UTF-8"',
+      "Content-Type": "text/plain",
+    },
+  });
+}
+
 export async function middleware(request: NextRequest) {
+  // Password protection gate — runs first
+  const passwordResponse = checkPasswordProtection(request);
+  if (passwordResponse) {
+    return passwordResponse;
+  }
+
+  // Existing Supabase auth flow
   const { user, response } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
