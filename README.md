@@ -24,7 +24,7 @@ Outreach Deck turns job-search networking into a short daily loop — find the r
 
 Each day the app generates LinkedIn search queries from your target companies, each using a different angle — a shared school, a developer on your stack, or a recruiter — because different angles open different doors.
 
-![Today view with daily searches](PASTE_SUPABASE_URL_01_TODAY)
+![Today view with daily searches](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/1.png)
 
 ### 2. Found someone? Paste their profile
 
@@ -32,8 +32,8 @@ Click a search, find someone worth reaching out to, and paste their LinkedIn pro
 
 <table>
   <tr>
-    <td width="50%"><img src="PASTE_SUPABASE_URL_02_PASTE_PROFILE" width="100%"/><br/><sub><b>Paste their profile</b></sub></td>
-    <td width="50%"><img src="PASTE_SUPABASE_URL_03_EXTRACTED_INFO" width="100%"/><br/><sub><b>Details extracted automatically</b></sub></td>
+    <td width="50%"><img src="https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/2.png" width="100%"/><br/><sub><b>Paste their profile</b></sub></td>
+    <td width="50%"><img src="https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/3.png" width="100%"/><br/><sub><b>Details extracted automatically</b></sub></td>
   </tr>
 </table>
 
@@ -41,19 +41,19 @@ Click a search, find someone worth reaching out to, and paste their LinkedIn pro
 
 The app drafts a concise, personalized connection note — tuned to ask how they got in and what to focus on, not a generic "refer me." You review, edit, and send.
 
-![Generated connection message](PASTE_SUPABASE_URL_04_GENERATED_MESSAGE)
+![Generated connection message](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/4.png)
 
 ### 4. Track every contact through the pipeline
 
 Each person moves through a Kanban board: **Requested -> Contacted -> Replied -> In conversation -> Closed.** Nothing falls through the cracks.
 
-![Pipeline board](PASTE_SUPABASE_URL_05_PIPELINE)
+![Pipeline board](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/5.png)
 
 ### 5. Keep the whole conversation in one place
 
 Open any contact to see the full thread. When they reply, the app drafts your next message using the entire conversation as context — so you never lose the thread or stall on what to say.
 
-![Contact conversation thread](PASTE_SUPABASE_URL_06_CONTACT_THREAD)
+![Contact conversation thread](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/6.png)
 
 ### Behind the loop
 
@@ -61,8 +61,8 @@ Manage your target companies and your profile — both drive the searches and th
 
 <table>
   <tr>
-    <td width="50%"><img src="PASTE_SUPABASE_URL_07_COMPANIES" width="100%"/><br/><sub><b>Target companies</b></sub></td>
-    <td width="50%"><img src="PASTE_SUPABASE_URL_08_PROFILE" width="100%"/><br/><sub><b>Your profile, built from your CV</b></sub></td>
+    <td width="50%"><img src="https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/7.png" width="100%"/><br/><sub><b>Target companies</b></sub></td>
+    <td width="50%"><img src="https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/8.png" width="100%"/><br/><sub><b>Your profile, built from your CV</b></sub></td>
   </tr>
 </table>
 
