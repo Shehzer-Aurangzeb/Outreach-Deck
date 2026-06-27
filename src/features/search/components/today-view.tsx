@@ -12,6 +12,7 @@ import {
   SearchIcon,
   SparklesIcon,
 } from "@/components/icons";
+import { MOCK_DAILY_SEARCHES, USE_MOCK_DATA } from "@/lib/mock-data";
 import { useProfile } from "@/features/profile/hooks/use-profile";
 
 import { useCompaniesForSearches } from "../hooks/use-searches";
@@ -46,6 +47,10 @@ export function TodayView() {
   }), [profile]);
 
   const searches = useMemo(() => {
+    // In mock mode, use pre-defined famous company searches
+    if (USE_MOCK_DATA) {
+      return MOCK_DAILY_SEARCHES as DailySearch[];
+    }
     if (companies.length === 0) return [];
     return generateDailySearches(companies, new Date(), searchProfile, searchOffset);
   }, [companies, searchProfile, searchOffset]);

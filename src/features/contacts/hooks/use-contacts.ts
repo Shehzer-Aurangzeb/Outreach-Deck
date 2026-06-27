@@ -1,6 +1,8 @@
 import type { Stage } from "@prisma/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { MOCK_CONTACTS, USE_MOCK_DATA } from "@/lib/mock-data";
+
 import {
   getContacts,
   updateContactStage,
@@ -22,7 +24,7 @@ export const contactKeys = {
 export function useContacts() {
   return useQuery({
     queryKey: contactKeys.list(),
-    queryFn: () => getContacts(),
+    queryFn: () => (USE_MOCK_DATA ? Promise.resolve(MOCK_CONTACTS) : getContacts()),
     staleTime: 1000 * 60,
   });
 }
@@ -31,8 +33,11 @@ export function useUpdateStage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ contactId, stage }: { contactId: string; stage: Stage }) =>
-      updateContactStage(contactId, stage),
+    mutationFn: async ({ contactId, stage }: { contactId: string; stage: Stage }) => {
+      // Mock mode: optimistic update only, no server call
+      if (USE_MOCK_DATA) return { success: true };
+      return updateContactStage(contactId, stage);
+    },
     onMutate: async ({ contactId, stage }) => {
       await queryClient.cancelQueries({ queryKey: contactKeys.list() });
 
@@ -50,7 +55,10 @@ export function useUpdateStage() {
       }
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      // Skip invalidation in mock mode (no server data to refetch)
+      if (!USE_MOCK_DATA) {
+        void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      }
     },
   });
 }
@@ -59,8 +67,11 @@ export function useAddMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: { contactId: string; role: "YOU" | "THEM"; text: string }) =>
-      addMessage(input),
+    mutationFn: async (input: { contactId: string; role: "YOU" | "THEM"; text: string }) => {
+      // Mock mode: optimistic update only, no server call
+      if (USE_MOCK_DATA) return { success: true };
+      return addMessage(input);
+    },
     onMutate: async ({ contactId, role, text }) => {
       await queryClient.cancelQueries({ queryKey: contactKeys.list() });
 
@@ -81,7 +92,9 @@ export function useAddMessage() {
       }
     },
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      if (!USE_MOCK_DATA) {
+        void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      }
     },
   });
 }
@@ -90,9 +103,15 @@ export function useDeleteContact() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (contactId: string) => deleteContact(contactId),
+    mutationFn: async (contactId: string) => {
+      // Mock mode: no-op (don't actually delete)
+      if (USE_MOCK_DATA) return { success: true };
+      return deleteContact(contactId);
+    },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      if (!USE_MOCK_DATA) {
+        void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      }
     },
   });
 }

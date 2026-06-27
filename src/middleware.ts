@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE_NAME, verifyToken } from "@/lib/staging-auth";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const publicRoutes = ["/login", "/auth/callback"];
+// Routes that bypass Supabase auth (public pages)
+const publicRoutes = ["/login", "/auth/callback", "/protected/login"];
 
 /**
  * Routes that bypass staging password protection.

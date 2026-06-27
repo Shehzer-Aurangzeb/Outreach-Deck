@@ -4,6 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
 import { anthropic, MODEL } from "@/lib/anthropic";
+import { MOCK_CONNECTION_DRAFT, MOCK_REPLY_DRAFT, USE_MOCK_DATA } from "@/lib/mock-data";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
@@ -46,6 +47,11 @@ async function getUserProfile(userId: string): Promise<UserProfile | null> {
 export async function draftConnectionNote(
   input: ConnectionDraftInput
 ): Promise<{ draft: string } | { error: string }> {
+  // Mock mode: return pre-written draft, no auth/DB/Claude
+  if (USE_MOCK_DATA) {
+    return { draft: MOCK_CONNECTION_DRAFT };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -142,6 +148,11 @@ function trimAtSentenceBoundary(text: string, maxLength: number): string {
 export async function draftReply(
   contactId: string
 ): Promise<{ draft: string } | { error: string }> {
+  // Mock mode: return pre-written draft, no auth/DB/Claude
+  if (USE_MOCK_DATA) {
+    return { draft: MOCK_REPLY_DRAFT };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

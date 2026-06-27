@@ -10,11 +10,22 @@ import {
   parseLinkedInProfile,
 } from "@/features/drafting/actions/draft-actions";
 
+import { MOCK_CONNECTION_DRAFT, USE_MOCK_DATA } from "@/lib/mock-data";
+
 import type { DailySearch } from "../lib/daily-search-generator";
 import { ComposerStepIndicator, type ComposerStep } from "./composer-step-indicator";
 import { DraftStep } from "./draft-step";
 import { PasteStep } from "./paste-step";
 import { ReviewStep, type ProfileWithUrl } from "./review-step";
+
+// Mock profile for screenshot mode
+const MOCK_COMPOSER_PROFILE: ProfileWithUrl = {
+  name: "Sarah Chen",
+  headline: "Senior Software Engineer at Google",
+  about: "Building cloud infrastructure tools. Previously at Stripe.",
+  experience: "5+ years in distributed systems and TypeScript",
+  linkedinUrl: "https://linkedin.com/in/sarahchen",
+};
 
 interface ProfileComposerProps {
   search: DailySearch;
@@ -23,11 +34,12 @@ interface ProfileComposerProps {
 }
 
 export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerProps) {
-  const [step, setStep] = useState<ComposerStep>("paste");
+  // In mock mode, start at draft step with pre-filled data for screenshots
+  const [step, setStep] = useState<ComposerStep>(USE_MOCK_DATA ? "draft" : "paste");
   const [rawText, setRawText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
-  const [profile, setProfile] = useState<ProfileWithUrl | null>(null);
-  const [draft, setDraft] = useState("");
+  const [profile, setProfile] = useState<ProfileWithUrl | null>(USE_MOCK_DATA ? MOCK_COMPOSER_PROFILE : null);
+  const [draft, setDraft] = useState(USE_MOCK_DATA ? MOCK_CONNECTION_DRAFT : "");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

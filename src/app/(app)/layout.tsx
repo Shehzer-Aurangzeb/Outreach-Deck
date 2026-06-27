@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { MOCK_USER_EMAIL, USE_MOCK_DATA } from "@/lib/mock-data";
 import { AppHeaderClient } from "@/components/app-header";
 
 export default async function AppLayout({
@@ -37,7 +38,7 @@ export default async function AppLayout({
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--color-void)" }}>
-      <AppHeaderClient userEmail={user.email ?? "User"} />
+      <AppHeaderClient userEmail={USE_MOCK_DATA ? MOCK_USER_EMAIL : (user.email ?? "User")} />
       
       {/* Main content */}
       <main className="px-3 sm:px-6 py-4 sm:py-6">
