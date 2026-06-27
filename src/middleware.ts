@@ -1,57 +1,92 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { COOKIE_NAME, verifyToken } from "@/lib/staging-auth";
 import { updateSession } from "@/lib/supabase/middleware";
 
 const publicRoutes = ["/login", "/auth/callback"];
 
 /**
- * Password protection gate — runs before Supabase auth.
- * Similar to Vercel's password protection (password-only, no username).
- * Returns a 401 response if password is missing/invalid.
- * Returns null if auth passes (continue to normal flow).
+ * Routes that bypass staging password protection.
+ * Includes: login flow, Next.js internals, static assets, health checks.
  */
-function checkPasswordProtection(request: NextRequest): NextResponse | null {
-  const password = process.env.SITE_AUTH_PASSWORD;
+const stagingAllowList = [
+  "/protected/login",
+  "/_next",
+  "/favicon.ico",
+  "/health",
+];
 
-  // Fail safe: if env var not set, block all access.
-  // This prevents accidentally exposing the site if someone forgets to set the password.
-  if (!password) {
-    return new NextResponse("Site password not configured", {
+/**
+ * Check if a path should bypass staging password protection.
+ */
+function isStagingAllowed(pathname: string): boolean {
+  // Allow-listed prefixes
+  if (stagingAllowList.some((prefix) => pathname.startsWith(prefix))) {
+    return true;
+  }
+  // Static assets (images, fonts, etc.)
+  if (/\.(svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf)$/i.test(pathname)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Staging password protection gate.
+ * Uses HMAC-signed cookie (stateless, Edge-compatible).
+ * Returns null if auth passes, or a Response to return early.
+ */
+async function checkStagingAuth(
+  request: NextRequest
+): Promise<NextResponse | null> {
+  // Feature toggle — skip if not enabled
+  if (process.env.ENABLE_STAGING_PASSWORD !== "true") {
+    return null;
+  }
+
+  const { pathname } = request.nextUrl;
+
+  // Allow-listed routes bypass protection
+  if (isStagingAllowed(pathname)) {
+    return null;
+  }
+
+  const password = process.env.STAGING_PASSWORD;
+  const authSecret = process.env.STAGING_AUTH_SECRET;
+
+  // Fail closed if not configured
+  if (!password || !authSecret) {
+    return new NextResponse("Staging password not configured", {
       status: 503,
       headers: { "Content-Type": "text/plain" },
     });
   }
 
-  const authHeader = request.headers.get("authorization");
-
-  if (authHeader) {
-    // Format: "Basic <base64(user:password)>" — we use empty username
-    const [scheme, encoded] = authHeader.split(" ");
-    if (scheme === "Basic" && encoded) {
-      // Edge runtime: use btoa/atob instead of Buffer
-      // Empty username, password only (like Vercel's protection)
-      const expected = btoa(`:${password}`);
-      if (encoded === expected) {
-        return null; // Auth passed, continue
-      }
-    }
+  // Check for valid staging auth cookie
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+  if (token && (await verifyToken(token, authSecret))) {
+    return null; // Auth passed
   }
 
-  // Missing or invalid password — prompt for login
-  return new NextResponse("Password required", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="Protected Site", charset="UTF-8"',
-      "Content-Type": "text/plain",
-    },
-  });
+  // API routes: return 401 so fetch doesn't break with redirect
+  if (pathname.startsWith("/api/")) {
+    return new NextResponse("Unauthorized", {
+      status: 401,
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
+
+  // Redirect to login page with return URL
+  const loginUrl = new URL("/protected/login", request.url);
+  loginUrl.searchParams.set("next", pathname);
+  return NextResponse.redirect(loginUrl);
 }
 
 export async function middleware(request: NextRequest) {
-  // Password protection gate — runs first
-  const passwordResponse = checkPasswordProtection(request);
-  if (passwordResponse) {
-    return passwordResponse;
+  // Staging password protection gate — runs first
+  const stagingResponse = await checkStagingAuth(request);
+  if (stagingResponse) {
+    return stagingResponse;
   }
 
   // Existing Supabase auth flow
