@@ -4,7 +4,7 @@
 
 Most job-search tools optimize the wrong thing. They automate applications — firing your résumé into the same saturated pipelines everyone else uses, where a single posting draws hundreds of applicants and your odds round to zero. Outreach Deck is built on a different premise: in a tight market, **referrals and conversations get you hired, not application volume.** The leverage is in reaching the right people, asking good questions, and building a real network — and that's the work this tool removes the friction from.
 
-> A live demo isn't linked publicly — the app runs on a personal Anthropic API budget, so it's kept private. The screenshots below show the full experience.
+> A live demo isn't linked publicly — the app runs on a personal Anthropic API budget, so it's kept private. The walkthrough below shows the full experience.
 
 ---
 
@@ -16,41 +16,68 @@ But doing it consistently is a grind: searching LinkedIn, filtering, writing a t
 
 ---
 
-## What it does
-
-**A daily loop, not a dashboard you dread opening.**
-
-1. **Daily targets.** Each day the app generates three LinkedIn search queries from your list of target companies — each using a different angle (a shared-school connection, a developer on your stack, or a recruiter), because different angles open different doors.
-2. **AI-drafted outreach.** You find someone, paste their profile, and the app drafts a concise connection note (kept under LinkedIn's 200-character limit) tuned to *learn how they got hired* — not a blunt "refer me," which strangers ignore.
-3. **A pipeline that remembers.** Every contact moves through a Kanban board: Contacted → Replied → In conversation → Closed. Nothing falls through the cracks.
-4. **Reply help that keeps context.** When someone responds, you paste their message and the app drafts your next reply using the full conversation history — so you never lose the thread or stall on what to say. It escalates naturally: light early, warmer over time, and only raises a referral once the conversation has earned it.
-5. **Your profile drives everything.** Upload a CV (or paste it), review the extracted details, and every search and message is personalized to you.
-
----
-
-## Screenshots
-
-> _Replace these placeholders with real screenshots (PNG) committed under `docs/screenshots/`._
-
-**Today — your daily three searches and the drafting composer**
-![Today view](docs/screenshots/today.png)
-
-**Pipeline — contacts moving through stages**
-![Pipeline board](docs/screenshots/pipeline.png)
-
-**Contact detail — conversation thread and AI reply drafting**
-![Contact detail](docs/screenshots/contact-detail.png)
-
-**Profile — CV upload and the editable review form**
-![Profile setup](docs/screenshots/profile.png)
-
----
-
 ## How it works
+
+Outreach Deck turns job-search networking into a short daily loop — find the right people, reach out well, and track every conversation in one place.
+
+### 1. Start your day with outreach targets
+
+Each day the app generates LinkedIn search queries from your target companies, each using a different angle — a shared school, a developer on your stack, or a recruiter — because different angles open different doors.
+
+![Today view with daily searches](PASTE_SUPABASE_URL_01_TODAY)
+
+### 2. Found someone? Paste their profile
+
+Click a search, find someone worth reaching out to, and paste their LinkedIn profile. The app extracts the relevant details — no manual entry.
+
+<table>
+  <tr>
+    <td width="50%"><img src="PASTE_SUPABASE_URL_02_PASTE_PROFILE" width="100%"/><br/><sub><b>Paste their profile</b></sub></td>
+    <td width="50%"><img src="PASTE_SUPABASE_URL_03_EXTRACTED_INFO" width="100%"/><br/><sub><b>Details extracted automatically</b></sub></td>
+  </tr>
+</table>
+
+### 3. Get an AI-drafted message
+
+The app drafts a concise, personalized connection note — tuned to ask how they got in and what to focus on, not a generic "refer me." You review, edit, and send.
+
+![Generated connection message](PASTE_SUPABASE_URL_04_GENERATED_MESSAGE)
+
+### 4. Track every contact through the pipeline
+
+Each person moves through a Kanban board: **Requested -> Contacted -> Replied -> In conversation -> Closed.** Nothing falls through the cracks.
+
+![Pipeline board](PASTE_SUPABASE_URL_05_PIPELINE)
+
+### 5. Keep the whole conversation in one place
+
+Open any contact to see the full thread. When they reply, the app drafts your next message using the entire conversation as context — so you never lose the thread or stall on what to say.
+
+![Contact conversation thread](PASTE_SUPABASE_URL_06_CONTACT_THREAD)
+
+### Behind the loop
+
+Manage your target companies and your profile — both drive the searches and the personalized messaging. Your profile is built once from your CV, then every search and message is personalized to you.
+
+<table>
+  <tr>
+    <td width="50%"><img src="PASTE_SUPABASE_URL_07_COMPANIES" width="100%"/><br/><sub><b>Target companies</b></sub></td>
+    <td width="50%"><img src="PASTE_SUPABASE_URL_08_PROFILE" width="100%"/><br/><sub><b>Your profile, built from your CV</b></sub></td>
+  </tr>
+</table>
+
+---
+
+## Design decisions
 
 The flow is deliberately **human-in-the-loop**. The app does the tedious, automatable work — generating searches, drafting messages, tracking state — while the person stays in control of the parts that should never be automated: who to contact, what to send, and when. There's no scraping and no auto-messaging; you run the searches and hit send yourself, which keeps your LinkedIn account safe and your outreach genuine.
 
-The search generation is **deterministic** — seeded by the date, so the same day always produces the same three targets (with a one-tap reshuffle for more). The AI drafting runs entirely **server-side**: the Anthropic key never touches the browser, and conversation context is rebuilt from the stored message thread on each call rather than held in any session.
+A few choices worth calling out:
+
+- **Deterministic search generation** — the daily targets are seeded by the date, so the same day always produces the same set (with a one-tap reshuffle for more). No wasted storage on something cheap to regenerate.
+- **Two message modes** — a connection note is kept under LinkedIn's 200-character limit; once a contact accepts, the first direct message is drafted as a fuller note, since the character limit no longer applies.
+- **Server-side AI** — the Anthropic key never touches the browser. Conversation context is rebuilt from the stored message thread on each call rather than held in any session, which keeps it stateless and cheap.
+- **Profile-driven** — nothing is hardcoded to one user. Searches and messages are generated from the logged-in user's own profile, so the tool works for anyone.
 
 ---
 
@@ -59,7 +86,7 @@ The search generation is **deterministic** — seeded by the date, so the same d
 This is a personal project built to a production standard — the structure and conventions are documented and enforced so the codebase stays clean as it grows.
 
 **Stack**
-- **Next.js (App Router) + TypeScript** (strict) — frontend and server actions / route handlers
+- **Next.js (App Router) + TypeScript** (strict) — frontend, server actions, and route handlers
 - **Supabase** — Postgres + auth (magic link), with Row-Level Security scoping every row to its owner
 - **Prisma** — typed data layer and migrations
 - **TanStack Query** — all client server-state, with optimistic updates on pipeline changes
