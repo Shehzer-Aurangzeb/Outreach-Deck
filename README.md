@@ -53,7 +53,7 @@ Each person moves through a Kanban board: **Requested -> Contacted -> Replied ->
 
 Open any contact to see the full thread. When they reply, the app drafts your next message using the entire conversation as context — so you never lose the thread or stall on what to say.
 
-![Contact conversation thread](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/6.png)
+![Contact conversation thread](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/Screenshot%202026-06-28%20at%2022.54.34.png)
 
 ### Behind the loop
 
