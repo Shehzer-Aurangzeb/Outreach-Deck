@@ -41,7 +41,7 @@ Click a search, find someone worth reaching out to, and paste their LinkedIn pro
 
 The app drafts a concise, personalized connection note — tuned to ask how they got in and what to focus on, not a generic "refer me." You review, edit, and send.
 
-![Generated connection message](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/454shots_so.png)
+![Generated connection message](https://lujsrvdkawuhnsffwsns.supabase.co/storage/v1/object/public/product-demo/4.png)
 
 ### 4. Track every contact through the pipeline
 
