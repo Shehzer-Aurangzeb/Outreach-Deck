@@ -102,6 +102,7 @@ export interface ReplyDraftInput {
   profileText: string;
   thread: ThreadMessage[];
   userProfile: UserProfile;
+  intent?: string;
 }
 
 export function mapThreadToAnthropicMessages(
@@ -136,8 +137,12 @@ Read their last message and respond accordingly:
 
 Output ONLY the message text — no preamble, no quotes.`;
 
+  const intentClause = input.intent?.trim()
+    ? `\n\nUser intent for this reply: "${input.intent.trim()}"`
+    : "";
+
   const contextPreamble = `You're replying to ${input.contactName} at ${input.company} (first approached via the ${input.angle} angle).
-Their background: ${input.profileText}
+Their background: ${input.profileText}${intentClause}
 
 Continue the conversation below — your reply comes after their latest message.`;
 

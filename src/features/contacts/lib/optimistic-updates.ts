@@ -66,3 +66,19 @@ export function replaceOptimisticMessage(
       : contact
   );
 }
+
+export function applyMessageDelete(
+  contacts: ContactWithMessages[],
+  contactId: string,
+  messageId: string
+): ContactWithMessages[] {
+  return contacts.map((contact) =>
+    contact.id === contactId
+      ? {
+          ...contact,
+          messages: contact.messages.filter((msg) => msg.id !== messageId),
+          updatedAt: new Date(),
+        }
+      : contact
+  );
+}

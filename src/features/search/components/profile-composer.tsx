@@ -247,7 +247,6 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
               onDraftChange={setDraft}
               onRegenerate={handleGenerateDraft}
               onSave={handleSaveAndAddToPipeline}
-              onBackToReview={() => setStep("review")}
               isGenerating={isGenerating}
               isSaving={isSaving}
             />

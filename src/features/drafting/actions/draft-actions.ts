@@ -146,7 +146,8 @@ function trimAtSentenceBoundary(text: string, maxLength: number): string {
 }
 
 export async function draftReply(
-  contactId: string
+  contactId: string,
+  intent?: string
 ): Promise<{ draft: string } | { error: string }> {
   // Mock mode: return pre-written draft, no auth/DB/Claude
   if (USE_MOCK_DATA) {
@@ -197,6 +198,7 @@ export async function draftReply(
       profileText: contact.profileText ?? "",
       thread,
       userProfile,
+      intent,
     });
 
     const response = await anthropic.messages.create({

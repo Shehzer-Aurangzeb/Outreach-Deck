@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
 
 import { ErrorState } from "@/components/error-state";
 import {
@@ -29,7 +28,6 @@ import { SearchCard } from "./search-card";
 import { StepCard } from "./step-card";
 
 export function TodayView() {
-  const router = useRouter();
   const { data: companies = [], isLoading: isLoadingCompanies, error: companiesError, refetch } = useCompaniesForSearches();
   const { data: profile, isLoading: isLoadingProfile } = useProfile();
   const [selectedSearch, setSelectedSearch] = useState<DailySearch | null>(null);
@@ -85,7 +83,7 @@ export function TodayView() {
 
   const handleSuccess = () => {
     setSelectedSearch(null);
-    router.push("/pipeline");
+    setSelectedAdHocSearch(null);
   };
 
   const handleNewSearches = () => {

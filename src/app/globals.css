@@ -48,21 +48,21 @@
      ----------------------------------------- */
   --color-accent: #7c3aed;
   --color-accent-hover: #8b5cf6;
-  --color-accent-subtle: rgba(124, 58, 237, 0.12);
+  --color-accent-subtle: rgba(124, 58, 237, 0.20);
 
   /* -----------------------------------------
      SEMANTIC
      ----------------------------------------- */
   --color-positive: #22c55e;
-  --color-positive-subtle: rgba(34, 197, 94, 0.12);
+  --color-positive-subtle: rgba(34, 197, 94, 0.20);
   --color-success: #22c55e;
-  --color-success-subtle: rgba(34, 197, 94, 0.12);
+  --color-success-subtle: rgba(34, 197, 94, 0.20);
   --color-warning: #f59e0b;
-  --color-warning-subtle: rgba(245, 158, 11, 0.12);
+  --color-warning-subtle: rgba(245, 158, 11, 0.20);
   --color-danger: #ef4444;
-  --color-danger-subtle: rgba(239, 68, 68, 0.12);
+  --color-danger-subtle: rgba(239, 68, 68, 0.20);
   --color-info: #3b82f6;
-  --color-info-subtle: rgba(59, 130, 246, 0.12);
+  --color-info-subtle: rgba(59, 130, 246, 0.20);
 
   /* -----------------------------------------
      SURFACES (additional)
@@ -465,6 +465,32 @@
 
   @media (prefers-reduced-motion: reduce) {
     .animate-slide-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* -----------------------------------------
+     TOAST SLIDE-DOWN (from top)
+     ----------------------------------------- */
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-toast-in {
+    animation: toast-in 0.2s ease-out forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-toast-in {
       animation: none;
       opacity: 1;
       transform: none;

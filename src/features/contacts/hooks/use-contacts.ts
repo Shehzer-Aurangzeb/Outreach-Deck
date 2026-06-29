@@ -8,10 +8,12 @@ import {
   updateContactStage,
   addMessage,
   deleteContact,
+  deleteMessage,
 } from "../actions/contact-actions";
 import {
   applyStageMove,
   applyMessageAppend,
+  applyMessageDelete,
   type ContactWithMessages,
 } from "../lib/optimistic-updates";
 
@@ -104,11 +106,45 @@ export function useDeleteContact() {
 
   return useMutation({
     mutationFn: async (contactId: string) => {
-      // Mock mode: no-op (don't actually delete)
       if (USE_MOCK_DATA) return { success: true };
       return deleteContact(contactId);
     },
     onSuccess: () => {
+      if (!USE_MOCK_DATA) {
+        void queryClient.invalidateQueries({ queryKey: contactKeys.all });
+      }
+    },
+  });
+}
+
+export function useDeleteMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ contactId, messageId }: { contactId: string; messageId: string }) => {
+      if (USE_MOCK_DATA) return { success: true };
+      return deleteMessage(messageId);
+    },
+    onMutate: async ({ contactId, messageId }) => {
+      await queryClient.cancelQueries({ queryKey: contactKeys.list() });
+
+      const previous = queryClient.getQueryData<ContactWithMessages[]>(contactKeys.list());
+
+      if (previous) {
+        queryClient.setQueryData(
+          contactKeys.list(),
+          applyMessageDelete(previous, contactId, messageId)
+        );
+      }
+
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(contactKeys.list(), context.previous);
+      }
+    },
+    onSettled: () => {
       if (!USE_MOCK_DATA) {
         void queryClient.invalidateQueries({ queryKey: contactKeys.all });
       }

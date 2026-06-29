@@ -257,3 +257,41 @@ export async function deleteContact(
   }
 }
 
+export async function deleteMessage(
+  messageId: string
+): Promise<{ success: boolean } | { error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  try {
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+      include: { contact: true },
+    });
+
+    if (!message) {
+      return { error: "Message not found" };
+    }
+
+    if (message.contact.userId !== user.id) {
+      return { error: "Not authorized" };
+    }
+
+    await prisma.message.delete({
+      where: { id: messageId },
+    });
+
+    revalidatePath("/pipeline");
+    return { success: true };
+  } catch (err) {
+    console.error("Delete message error:", err);
+    return { error: "Failed to delete message" };
+  }
+}
+

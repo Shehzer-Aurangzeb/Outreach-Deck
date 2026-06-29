@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { CharCounter } from "@/components/char-counter";
-import { CheckIcon, CopyIcon, RefreshIcon, SendIcon, UserPlusIcon } from "@/components/icons";
+import { CheckIcon, RefreshIcon, SendIcon, UserPlusIcon } from "@/components/icons";
+import { Composer } from "@/shared/ui/composer";
 
 interface DraftStepProps {
   profileName: string;
@@ -11,7 +11,6 @@ interface DraftStepProps {
   onDraftChange: (draft: string) => void;
   onRegenerate: () => void;
   onSave: (sentWithNote: boolean) => void;
-  onBackToReview: () => void;
   isGenerating: boolean;
   isSaving: boolean;
 }
@@ -22,20 +21,16 @@ export function DraftStep({
   onDraftChange,
   onRegenerate,
   onSave,
-  onBackToReview,
   isGenerating,
   isSaving,
 }: DraftStepProps) {
-  const [copied, setCopied] = useState(false);
   const [sentWithNote, setSentWithNote] = useState(true);
 
   const charCount = draft.length;
   const isOverLimit = sentWithNote && charCount > 200;
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(draft);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleSave = () => {
+    onSave(sentWithNote);
   };
 
   return (
@@ -57,33 +52,40 @@ export function DraftStep({
         </div>
       </div>
 
-      {/* Draft Textarea */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
           <label className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
             Your Message
           </label>
-          {sentWithNote && <CharCounter current={charCount} max={200} />}
+          <button
+            onClick={onRegenerate}
+            disabled={isGenerating}
+            className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors hover:bg-white/5"
+            style={{ color: "var(--color-muted)" }}
+            title="Regenerate message"
+          >
+            <RefreshIcon className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`} />
+            Regenerate
+          </button>
         </div>
-        <textarea
+        
+        <Composer
           value={draft}
-          onChange={(e) => onDraftChange(e.target.value)}
-          rows={5}
-          className="w-full px-4 py-3 rounded-xl text-sm resize-y transition-colors"
-          style={{
-            backgroundColor: "var(--color-void)",
-            color: "var(--color-text)",
-            border: `1px solid ${isOverLimit ? "var(--color-danger)" : "var(--color-edge)"}`,
-          }}
+          onChange={onDraftChange}
+          onPrimaryAction={handleSave}
+          primaryIcon={sentWithNote ? <CheckIcon className="w-4 h-4" /> : <UserPlusIcon className="w-4 h-4" />}
+          primaryLabel={sentWithNote ? "Mark Sent → Pipeline" : "Add to Requested"}
+          placeholder="Your connection note..."
+          maxLength={sentWithNote ? 200 : undefined}
+          showCharCount={sentWithNote}
+          isLoading={isSaving}
+          hasError={isOverLimit}
+          errorMessage={isOverLimit ? "LinkedIn connection notes must be under 200 characters" : undefined}
+          minRows={4}
+          maxRows={6}
         />
-        {isOverLimit && (
-          <p className="text-xs mt-1" style={{ color: "var(--color-danger)" }}>
-            LinkedIn connection notes must be under 200 characters
-          </p>
-        )}
       </div>
 
-      {/* Send Type Toggle */}
       <div
         className="p-4 rounded-xl"
         style={{ backgroundColor: "var(--color-raised)", border: "1px solid var(--color-edge)" }}
@@ -125,67 +127,6 @@ export function DraftStep({
           </p>
         )}
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={onRegenerate}
-          disabled={isGenerating}
-          className="h-12 px-4 rounded-xl font-medium disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: "var(--color-raised)",
-            color: "var(--color-text)",
-            border: "1px solid var(--color-edge)",
-          }}
-          title="Regenerate message"
-        >
-          <RefreshIcon className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
-        </button>
-        {sentWithNote && (
-          <button
-            onClick={handleCopy}
-            className="flex-1 h-12 rounded-xl font-medium transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-            style={{
-              backgroundColor: copied ? "var(--color-success)" : "var(--color-raised)",
-              color: copied ? "white" : "var(--color-text)",
-              border: copied ? "none" : "1px solid var(--color-edge)",
-            }}
-          >
-            {copied ? (
-              <>
-                <CheckIcon className="w-4 h-4" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <CopyIcon className="w-4 h-4" />
-                Copy
-              </>
-            )}
-          </button>
-        )}
-        <button
-          onClick={() => onSave(sentWithNote)}
-          disabled={isSaving || isOverLimit}
-          className="flex-1 h-12 rounded-xl font-medium disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-          style={{
-            backgroundColor: "var(--color-success)",
-            color: "white",
-          }}
-        >
-          <SendIcon className="w-4 h-4" />
-          {isSaving ? "Saving..." : sentWithNote ? "Mark Sent → Pipeline" : "Add to Requested"}
-        </button>
-      </div>
-
-      {/* Back Option */}
-      <button
-        onClick={onBackToReview}
-        className="w-full text-sm py-2 text-center transition-colors hover:underline"
-        style={{ color: "var(--color-muted)" }}
-      >
-        ← Back to edit profile info
-      </button>
     </div>
   );
 }
