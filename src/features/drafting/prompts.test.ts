@@ -32,7 +32,7 @@ describe("buildConnectionNotePrompt", () => {
     });
 
     expect(result.system).toContain("Target ~180 characters");
-    expect(result.system).toContain("200 as an absolute ceiling");
+    expect(result.system).toContain("200 is an absolute ceiling");
   });
 
   it("bans generic openers in system prompt", () => {
@@ -72,7 +72,7 @@ describe("buildConnectionNotePrompt", () => {
     expect(result.messages[0]!.content).toContain("Company: Shopify");
   });
 
-  it("includes angle with hint in user message", () => {
+  it("includes angle in user message", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer",
       company: "TestCo",
@@ -81,7 +81,6 @@ describe("buildConnectionNotePrompt", () => {
     });
 
     expect(result.messages[0]!.content).toContain("Angle: ALUM");
-    expect(result.messages[0]!.content).toContain("Concordia");
   });
 
   it("includes the profile text in user message", () => {
@@ -187,15 +186,14 @@ describe("buildReplyDraftPrompt", () => {
   it("includes referral escalation guidance in system prompt", () => {
     const result = buildReplyDraftPrompt(baseInput);
 
-    expect(result.system).toContain("referral or intro ONLY if the conversation has genuinely warmed");
-    expect(result.system).toContain("NEVER push the ask on a first reply");
+    expect(result.system).toContain("gently raise whether they'd be open to referring");
   });
 
   it("includes handling for cold/declined replies", () => {
     const result = buildReplyDraftPrompt(baseInput);
 
-    expect(result.system).toContain("short, cold, or noncommittal");
-    expect(result.system).toContain("declined or can't help");
+    expect(result.system).toContain("Short / cool / noncommittal");
+    expect(result.system).toContain("Declined or can't help");
   });
 
   it("includes contact context in the first message", () => {
@@ -294,13 +292,20 @@ describe("extractSchoolName", () => {
     expect(extractSchoolName("")).toBeNull();
   });
 
-  it("returns education string when no pattern matches", () => {
-    expect(extractSchoolName("self-taught developer")).toBe("self-taught developer");
+  it("returns null when no recognizable school pattern matches", () => {
+    expect(extractSchoolName("self-taught developer")).toBeNull();
+    expect(extractSchoolName("online courses, bootcamp")).toBeNull();
+  });
+
+  it("extracts tightly from messy inputs (avoids greedy matching)", () => {
+    expect(extractSchoolName("I studied hard at Concordia University")).toBe("Concordia");
+    expect(extractSchoolName("worked my way through McGill University")).toBe("McGill");
+    expect(extractSchoolName("graduated from University of Toronto last year")).toContain("Toronto");
   });
 });
 
 describe("profile-driven angle hints (no hardcoded school)", () => {
-  it("ALUM angle uses school from user profile", () => {
+  it("ALUM angle uses school from user profile in system prompt", () => {
     const concordiaProfile: UserProfile = {
       ...TEST_PROFILE,
       education: "M.S. Computer Science, Concordia University",
@@ -313,7 +318,7 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
       userProfile: concordiaProfile,
     });
 
-    expect(result.messages[0]!.content).toContain("Concordia");
+    expect(result.system).toContain("Concordia");
   });
 
   it("ALUM angle uses Waterloo for Waterloo grad (no Concordia)", () => {
@@ -333,8 +338,8 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
       userProfile: waterlooProfile,
     });
 
-    expect(result.messages[0]!.content).toContain("Waterloo");
-    expect(result.messages[0]!.content).not.toContain("Concordia");
+    expect(result.system).toContain("Waterloo");
+    expect(result.system).not.toContain("Concordia");
   });
 
   it("ALUM angle degrades gracefully when no school in profile", () => {
@@ -354,14 +359,14 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
       userProfile: noSchoolProfile,
     });
 
-    // Should not contain random school name
-    expect(result.messages[0]!.content).not.toContain("Concordia");
-    expect(result.messages[0]!.content).not.toContain("undefined");
-    // Should have a fallback hint
-    expect(result.messages[0]!.content).toContain("Shared educational background");
+    // Should not contain random school name in system prompt
+    expect(result.system).not.toContain("Concordia");
+    expect(result.system).not.toContain("undefined");
+    // Should have a fallback hint (uses "school" as fallback)
+    expect(result.system).toContain("fellow school grad");
   });
 
-  it("STACK angle includes user's actual stack", () => {
+  it("STACK angle includes user's actual stack in system prompt", () => {
     const pythonProfile: UserProfile = {
       name: "Kim",
       role: "data engineer",
@@ -378,6 +383,6 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
       userProfile: pythonProfile,
     });
 
-    expect(result.messages[0]!.content).toContain("Python, Spark, Airflow");
+    expect(result.system).toContain("Python, Spark, Airflow");
   });
 });
