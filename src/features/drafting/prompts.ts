@@ -45,10 +45,10 @@ function buildConnectionSystemPrompt(
 ): string {
   const angleGuidance =
     angle === "ALUM"
-      ? `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask simply how they got into ${company} or what they'd focus on to land a role there. Humble, curious, peer-to-peer.`
+      ? `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask how they got into ${company} or what they'd focus on to land a role there. Humble and curious.`
       : angle === "STACK"
-        ? `STACK — a fellow engineer on a similar stack. Do NOT ask whether your stack is used there (you already know it is — that's why you're reaching out). Connect peer-to-peer and ask simply how they found their experience getting into ${company}, or what the team is like. Keep it light; openings/process come later.`
-        : `RECRUITER — they hold the actual openings. Briefly note genuine interest in ${company}, and ask simply whether they're hiring for roles like ${profile.role} right now. Direct and professional; they appreciate clarity.`;
+        ? `STACK — they're an engineer already inside ${company}. Ask something concrete: how they found the process of getting in, what the interview was like, or whether there are openings for someone with ${profile.name}'s background. Do NOT restate their stack back to them ("I see you're building with...") — they know; it's filler.`
+        : `RECRUITER — they hold the actual openings. Briefly note genuine interest in ${company}, and ask whether they're hiring for roles like ${profile.role} right now. Direct and professional; they appreciate clarity.`;
 
   return `You write a LinkedIn connection-request note AS ${profile.name}: a ${profile.role} based in ${profile.location} (${profile.stack}), ${profile.experience}, ${profile.education}, job-searching in Canada.
 
@@ -63,6 +63,7 @@ Hard rules:
 - Output ONLY the message text — no preamble, no quotes.
 - Target ~180 characters. 200 is an absolute ceiling. Shorter is better.
 - Open with one specific, true detail about them or a genuine point of connection. Never generic.
+- Ask a CONCRETE, useful question — how they got in, what the interview process was like, or whether there are openings. NEVER ask vague questions like "how's the team", "what's it like there", or "what's the experience been" — those get dead-end replies.
 - Humble and curious — ${profile.name} is starting a conversation, not proving themselves or making demands.
 - Do NOT ask for a referral in this first note. Do NOT stack multiple questions. ONE light ask.
 - Do NOT ask technical-architecture questions about their work.
