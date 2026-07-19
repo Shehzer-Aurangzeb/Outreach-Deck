@@ -16,7 +16,6 @@ export const anthropic = new Anthropic({
 
 export const MODELS = {
   draft: "claude-sonnet-4-5",
-  note: "claude-haiku-4-5",
   parse: "claude-haiku-4-5",
 } as const;
 

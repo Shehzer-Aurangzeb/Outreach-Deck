@@ -108,7 +108,7 @@ export async function draftConnectionNote(
 
 async function generateDraft(prompt: { system: string; messages: Array<{ role: "user" | "assistant"; content: string }> }): Promise<string> {
   const response = await anthropic.messages.create({
-    model: MODELS.note,
+    model: MODELS.draft,
     max_tokens: 400,
     system: prompt.system,
     messages: prompt.messages,
