@@ -3,7 +3,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { anthropic, MODELS } from "@/lib/anthropic";
 import { MOCK_CONNECTION_DRAFT, MOCK_REPLY_DRAFT, USE_MOCK_DATA } from "@/lib/mock-data";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
@@ -108,7 +108,7 @@ export async function draftConnectionNote(
 
 async function generateDraft(prompt: { system: string; messages: Array<{ role: "user" | "assistant"; content: string }> }): Promise<string> {
   const response = await anthropic.messages.create({
-    model: MODEL,
+    model: MODELS.note,
     max_tokens: 400,
     system: prompt.system,
     messages: prompt.messages,
@@ -202,7 +202,7 @@ export async function draftReply(
     });
 
     const response = await anthropic.messages.create({
-      model: MODEL,
+      model: MODELS.draft,
       max_tokens: 400,
       system: prompt.system,
       messages: prompt.messages,
@@ -260,7 +260,7 @@ export async function parseLinkedInProfile(
 
   try {
     const response = await anthropic.messages.create({
-      model: MODEL,
+      model: MODELS.parse,
       max_tokens: 1000,
       system: `You extract structured data from raw LinkedIn profile text a user copied from their browser. You are a parser, not a writer.
 
@@ -353,8 +353,17 @@ export async function draftFirstDM(
       userProfile,
     });
 
+    // DEBUG: Log actual values reaching the prompt builder (enable with DEBUG_DRAFTS=true)
+    if (process.env.DEBUG_DRAFTS === "true") {
+      console.log("[draftFirstDM DEBUG] contact.name:", JSON.stringify(contact.name));
+      console.log("[draftFirstDM DEBUG] contact.company:", JSON.stringify(contact.company));
+      console.log("[draftFirstDM DEBUG] userProfile.education:", JSON.stringify(userProfile.education));
+      console.log("[draftFirstDM DEBUG] userProfile.experience:", JSON.stringify(userProfile.experience));
+      console.log("[draftFirstDM DEBUG] userProfile.name:", JSON.stringify(userProfile.name));
+    }
+
     const response = await anthropic.messages.create({
-      model: MODEL,
+      model: MODELS.draft,
       max_tokens: 400,
       system: prompt.system,
       messages: prompt.messages,

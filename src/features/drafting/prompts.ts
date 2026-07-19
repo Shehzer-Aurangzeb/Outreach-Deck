@@ -201,9 +201,9 @@ export interface FirstDMInput {
 function buildFirstDMGoal(angle: Angle, company: string, role: string, schoolName: string | null): string {
   switch (angle) {
     case "ALUM":
-      return `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask how they got into ${company} or what they'd focus on to land a role there. Humble, curious, peer-to-peer.`;
+      return `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask how they got into ${company} or what they'd focus on to land a role there. Humble and curious.`;
     case "STACK":
-      return `STACK — a fellow engineer on a similar stack. Peer-to-peer — ask what getting into ${company} was like, the team, the interview process. Do NOT ask if your stack is used there (you know it is).`;
+      return `STACK — they're an engineer already inside ${company}. You want their honest read on getting in: what the hiring process was like, what interviews looked like, or whether there are openings for someone like you. Do NOT restate or match their tech stack, and do NOT mention your own years/stack as a credential — they can see your profile.`;
     case "RECRUITER":
       return `RECRUITER — they hold the actual openings. Ask whether they're hiring for roles like ${role} right now, and what they look for. Direct and professional. NOT "what should I focus on."`;
   }
@@ -235,11 +235,15 @@ Voice & length:
 
 Hard rules:
 - Output ONLY the message text — no preamble, no quotes.
-- Address them by their first name.
+- Address them by their first name. If no name is available, open without a salutation — never "[First Name]" or "there".
 - You may reference one true, specific detail about them to personalize — but it must SERVE the ask.
+- Do NOT pitch or restate ${profile.name}'s own stack, experience, or qualifications as a selling point. They can see your profile. Lead with genuine curiosity about THEM, not a summary of you.
+- Ask a CONCRETE, useful question (hiring process, what interviews are like, whether there are openings). Avoid vague questions about "team dynamic", "culture", or "what it's like" — those get dead-end replies.
+- State ${profile.name}'s experience and background ONLY as given in the profile — never approximate, round, or invent numbers. If you don't need to state a number, don't.
 - BANNED: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords.`;
 
-  const userContent = `Company: ${input.company}
+  const userContent = `Contact name: ${input.contactName}
+Company: ${input.company}
 Angle: ${input.angle}
 
 Their profile:

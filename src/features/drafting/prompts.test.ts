@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildConnectionNotePrompt,
+  buildFirstDMPrompt,
   buildReplyDraftPrompt,
   extractSchoolName,
   isConnectionNoteValid,
@@ -384,5 +385,71 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
     });
 
     expect(result.system).toContain("Python, Spark, Airflow");
+  });
+});
+
+describe("buildFirstDMPrompt", () => {
+  it("includes contactName in user message (no placeholder)", () => {
+    const result = buildFirstDMPrompt({
+      contactName: "Sarah Chen",
+      company: "RBC",
+      angle: "STACK",
+      profileText: "Software Engineer at RBC",
+      userProfile: TEST_PROFILE,
+    });
+
+    expect(result.messages[0]!.content).toContain("Contact name: Sarah Chen");
+    expect(result.messages[0]!.content).not.toContain("[First Name]");
+  });
+
+  it("STACK angle goal does not contain peer-to-peer framing", () => {
+    const result = buildFirstDMPrompt({
+      contactName: "John",
+      company: "Shopify",
+      angle: "STACK",
+      profileText: "Engineer at Shopify",
+      userProfile: TEST_PROFILE,
+    });
+
+    expect(result.system).not.toContain("peer-to-peer");
+    expect(result.system).not.toContain("Peer-to-peer");
+  });
+
+  it("includes rule against pitching own qualifications", () => {
+    const result = buildFirstDMPrompt({
+      contactName: "Jane",
+      company: "Google",
+      angle: "ALUM",
+      profileText: "Engineer at Google",
+      userProfile: TEST_PROFILE,
+    });
+
+    expect(result.system).toContain("Do NOT pitch or restate");
+    expect(result.system).toContain("They can see your profile");
+  });
+
+  it("includes rule for concrete questions", () => {
+    const result = buildFirstDMPrompt({
+      contactName: "Bob",
+      company: "Microsoft",
+      angle: "STACK",
+      profileText: "Dev at Microsoft",
+      userProfile: TEST_PROFILE,
+    });
+
+    expect(result.system).toContain("CONCRETE, useful question");
+    expect(result.system).toContain("Avoid vague questions");
+  });
+
+  it("includes rule against inventing numbers", () => {
+    const result = buildFirstDMPrompt({
+      contactName: "Alice",
+      company: "Amazon",
+      angle: "RECRUITER",
+      profileText: "Recruiter at Amazon",
+      userProfile: TEST_PROFILE,
+    });
+
+    expect(result.system).toContain("never approximate, round, or invent numbers");
   });
 });

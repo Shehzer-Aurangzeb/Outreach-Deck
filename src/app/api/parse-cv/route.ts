@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import pdfParse from "pdf-parse";
 
-import { anthropic, MODEL } from "@/lib/anthropic";
+import { anthropic, MODELS } from "@/lib/anthropic";
 import { requireUser } from "@/lib/supabase/server";
 import { parsedCvSchema } from "@/features/profile/schema";
 
@@ -69,7 +69,7 @@ async function extractCvText(request: NextRequest): Promise<string> {
 
 async function parseWithClaude(cvText: string) {
   const response = await anthropic.messages.create({
-    model: MODEL,
+    model: MODELS.parse,
     max_tokens: 500,
     system: CV_PARSE_PROMPT,
     messages: [
