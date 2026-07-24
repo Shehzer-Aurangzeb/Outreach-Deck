@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 import { ErrorState } from "@/components/error-state";
 import {
   CalendarIcon,
   ChevronDownIcon,
+  FilterIcon,
   InfoIcon,
   RefreshIcon,
   SearchIcon,
@@ -13,6 +14,7 @@ import {
 } from "@/components/icons";
 import { MOCK_DAILY_SEARCHES, USE_MOCK_DATA } from "@/lib/mock-data";
 import { useProfile } from "@/features/profile/hooks/use-profile";
+import type { Tier } from "@prisma/client";
 
 import { useCompaniesForSearches } from "../hooks/use-searches";
 import {
@@ -27,13 +29,61 @@ import { ProfileComposer } from "./profile-composer";
 import { SearchCard } from "./search-card";
 import { StepCard } from "./step-card";
 
+const TIER_OPTIONS: { value: Tier; label: string }[] = [
+  { value: "MID", label: "Mid-size" },
+  { value: "CONSULTANCY", label: "Consultancy" },
+  { value: "LARGE", label: "Large" },
+];
+
+const STORAGE_KEY = "search-tier-filter";
+
 export function TodayView() {
   const { data: companies = [], isLoading: isLoadingCompanies, error: companiesError, refetch } = useCompaniesForSearches();
   const { data: profile, isLoading: isLoadingProfile } = useProfile();
   const [selectedSearch, setSelectedSearch] = useState<DailySearch | null>(null);
   const [selectedAdHocSearch, setSelectedAdHocSearch] = useState<AdHocSearch | null>(null);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showTierFilter, setShowTierFilter] = useState(false);
+  const [selectedTiers, setSelectedTiers] = useState<Set<Tier>>(new Set(["MID", "CONSULTANCY", "LARGE"]));
   const [searchOffset, setSearchOffset] = useState(0);
+  const tierFilterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Tier[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSelectedTiers(new Set(parsed));
+        }
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tierFilterRef.current && !tierFilterRef.current.contains(e.target as Node)) {
+        setShowTierFilter(false);
+      }
+    };
+    if (showTierFilter) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showTierFilter]);
+
+  const handleTierToggle = (tier: Tier) => {
+    setSelectedTiers((prev) => {
+      const next = new Set(prev);
+      if (next.has(tier)) {
+        if (next.size > 1) next.delete(tier);
+      } else {
+        next.add(tier);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const isLoading = isLoadingCompanies || isLoadingProfile;
   const error = companiesError;
@@ -44,14 +94,17 @@ export function TodayView() {
     education: profile?.education ?? "",
   }), [profile]);
 
+  const filteredCompanies = useMemo(() => {
+    return companies.filter((c) => selectedTiers.has(c.tier));
+  }, [companies, selectedTiers]);
+
   const searches = useMemo(() => {
-    // In mock mode, use pre-defined famous company searches
     if (USE_MOCK_DATA) {
       return MOCK_DAILY_SEARCHES as DailySearch[];
     }
-    if (companies.length === 0) return [];
-    return generateDailySearches(companies, new Date(), searchProfile, searchOffset);
-  }, [companies, searchProfile, searchOffset]);
+    if (filteredCompanies.length === 0) return [];
+    return generateDailySearches(filteredCompanies, new Date(), searchProfile, searchOffset);
+  }, [filteredCompanies, searchProfile, searchOffset]);
 
   const today = useMemo(() => {
     const now = new Date();
@@ -239,6 +292,49 @@ export function TodayView() {
               <span>Refresh for different picks</span>
             </div>
 
+            <div className="relative" ref={tierFilterRef}>
+              <button
+                onClick={() => setShowTierFilter(!showTierFilter)}
+                className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+              >
+                <FilterIcon className="w-4 h-4" />
+                Tiers
+                {selectedTiers.size < 3 && (
+                  <span
+                    className="ml-1 px-1.5 py-0.5 text-xs rounded-full"
+                    style={{ backgroundColor: "var(--color-accent)", color: "var(--color-void)" }}
+                  >
+                    {selectedTiers.size}
+                  </span>
+                )}
+              </button>
+              {showTierFilter && (
+                <div
+                  className="absolute right-0 top-full mt-2 z-10 rounded-lg shadow-lg p-3 min-w-45"
+                  style={{ backgroundColor: "var(--color-raised)", border: "1px solid var(--color-edge)" }}
+                >
+                  <p className="text-xs font-medium mb-2" style={{ color: "var(--color-muted)" }}>
+                    Include companies
+                  </p>
+                  {TIER_OPTIONS.map((option) => (
+                    <label key={option.value} className="flex items-center gap-2 py-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedTiers.has(option.value)}
+                        onChange={() => handleTierToggle(option.value)}
+                        className="rounded"
+                        style={{ accentColor: "var(--color-accent)" }}
+                      />
+                      <span className="text-sm" style={{ color: "var(--color-text)" }}>{option.label}</span>
+                    </label>
+                  ))}
+                  <p className="text-xs mt-2 pt-2" style={{ color: "var(--color-ghost)", borderTop: "1px solid var(--color-edge)" }}>
+                    {filteredCompanies.length} of {companies.length} companies
+                  </p>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleNewSearches}
               className="btn btn-primary flex items-center gap-2 whitespace-nowrap"
@@ -250,15 +346,28 @@ export function TodayView() {
         </div>
 
         {/* Search Cards */}
-        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
-          {searches.map((search, index) => (
-            <SearchCard
-              key={`${search.company.id}-${search.angle}-${index}`}
-              search={search}
-              onSelect={handleSelect}
-            />
-          ))}
-        </div>
+        {searches.length > 0 ? (
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+            {searches.map((search, index) => (
+              <SearchCard
+                key={`${search.company.id}-${search.angle}-${index}`}
+                search={search}
+                onSelect={handleSelect}
+              />
+            ))}
+          </div>
+        ) : (
+          <div
+            className="rounded-xl p-8 text-center"
+            style={{ backgroundColor: "var(--color-base)", border: "1px solid var(--color-edge)" }}
+          >
+            <FilterIcon className="w-8 h-8 mx-auto mb-3" style={{ color: "var(--color-muted)" }} />
+            <p className="font-medium" style={{ color: "var(--color-text)" }}>No companies match your filter</p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
+              Select more tiers to see searches
+            </p>
+          </div>
+        )}
 
         {/* How It Works - Collapsible */}
         <div

@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ErrorState } from "@/components/error-state";
-import { BuildingIcon, PlusIcon } from "@/components/icons";
+import { BuildingIcon, PlusIcon, UploadIcon } from "@/components/icons";
 
 import { TIER_ORDER, type SortOption } from "../constants";
 import {
@@ -14,12 +14,14 @@ import {
   useDeleteCompany,
   useSeedCompanies,
   useUpdateCompany,
+  useBulkImportCompanies,
 } from "../hooks/use-companies";
 import { companyFormSchema } from "../schema";
 import type { Company, CompanyFormInput, Tier } from "../types";
 import { CompaniesSkeleton } from "./companies-skeleton";
 import { CompanyFormModal } from "./company-form-modal";
 import { CompanyRow } from "./company-row";
+import { CsvImportModal } from "./csv-import-modal";
 import { DeleteConfirmationModal } from "./delete-confirmation-modal";
 import { EmptyState } from "./empty-state";
 import { FilterBar } from "./filter-bar";
@@ -32,6 +34,7 @@ export function CompaniesView() {
   const createMutation = useCreateCompany();
   const updateMutation = useUpdateCompany();
   const deleteMutation = useDeleteCompany();
+  const bulkImportMutation = useBulkImportCompanies();
 
   // Filter & search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +44,7 @@ export function CompaniesView() {
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Company | null>(null);
 
@@ -202,6 +206,13 @@ export function CompaniesView() {
                 {seedMutation.isPending ? "Restoring..." : "Restore Defaults"}
               </button>
             )}
+            <button
+              onClick={() => setImportModalOpen(true)}
+              className="btn btn-secondary text-sm flex-1 sm:flex-none"
+            >
+              <UploadIcon className="w-4 h-4 mr-1 sm:mr-1.5 inline" />
+              Import CSV
+            </button>
             <button onClick={openCreateModal} className="btn btn-primary text-sm flex-1 sm:flex-none">
               <PlusIcon className="w-4 h-4 mr-1 sm:mr-1.5 inline" />
               Add Company
@@ -296,6 +307,14 @@ export function CompaniesView() {
             isDeleting={deleteMutation.isPending}
             onClose={() => setDeleteTarget(null)}
             onConfirm={handleDelete}
+          />
+        )}
+
+        {/* CSV Import Modal */}
+        {importModalOpen && (
+          <CsvImportModal
+            onClose={() => setImportModalOpen(false)}
+            onImport={bulkImportMutation.mutateAsync}
           />
         )}
       </div>

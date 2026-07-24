@@ -75,3 +75,31 @@ export async function deleteCompany(id: string): Promise<void> {
 
   revalidatePath("/companies");
 }
+
+export async function bulkCreateCompanies(
+  inputs: CreateCompanyInput[]
+): Promise<{ created: number; skipped: number }> {
+  const user = await requireUser();
+
+  const existingCompanies = await prisma.company.findMany({
+    where: { userId: user.id },
+    select: { name: true },
+  });
+  const existingNames = new Set(existingCompanies.map((c) => c.name.toLowerCase()));
+
+  const newCompanies = inputs.filter(
+    (input) => !existingNames.has(input.name.toLowerCase())
+  );
+
+  if (newCompanies.length > 0) {
+    await prisma.company.createMany({
+      data: newCompanies.map((input) => {
+        const parsed = createCompanySchema.parse(input);
+        return { ...parsed, userId: user.id };
+      }),
+    });
+  }
+
+  revalidatePath("/companies");
+  return { created: newCompanies.length, skipped: inputs.length - newCompanies.length };
+}

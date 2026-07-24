@@ -45,27 +45,30 @@ function buildConnectionSystemPrompt(
 ): string {
   const angleGuidance =
     angle === "ALUM"
-      ? `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask how they got into ${company} or what they'd focus on to land a role there. Humble and curious.`
+      ? `ALUM — fellow ${schoolName || "school"} grad. The sanctioned personalization hook is the SHARED SCHOOL (it's in both profiles — always safe and true). Lead warmly on it, then ask how they got into ${company} or what they'd focus on to land a role there. Humble and curious.`
       : angle === "STACK"
-        ? `STACK — they're an engineer already inside ${company}. Ask something concrete: how they found the process of getting in, what the interview was like, or whether there are openings for someone with ${profile.name}'s background. Do NOT restate their stack back to them ("I see you're building with...") — they know; it's filler.`
-        : `RECRUITER — they hold the actual openings. Briefly note genuine interest in ${company}, and ask whether they're hiring for roles like ${profile.role} right now. Direct and professional; they appreciate clarity.`;
+        ? `STACK — they're an engineer already inside ${company}. The sanctioned hook is the fact that they work on ${profile.stack.split(",")[0]?.trim() || "your stack"}-adjacent work at ${company} — reference it lightly as the REASON you're reaching out, then ask something concrete: how they found the process of getting in, what the interview was like, or whether there are openings for someone with ${profile.name}'s background. Do NOT recite their full stack back to them ("I see you work with React, Redux, TypeScript...") — that's filler; a light one-touch reference to what they build is fine, a recital is not.`
+        : `RECRUITER — they hold the actual openings. The ask is soft: "connect so I'm on your radar for ${profile.role} roles at ${company} — now or down the line," framed so it's easy to say yes to EVEN IF nothing is open today. Do NOT ask a closed "are you hiring right now?" yes/no question — it dead-ends the moment the answer is no.
+
+CRITICAL — personalization source: You may ONLY personalize using (a) a detail explicitly present in the contact's profile text provided below, or (b) a true detail about ${profile.name} from the profile above. You must NOT state any fact about ${company} that is not in the provided profile text — no client names, office locations, products, projects, or history pulled from memory. You do not know these and will get them wrong. If nothing specific and verifiable is available to open with, DO NOT invent one — just open naturally with the role interest and the soft radar ask. A clean, honest, generic-but-warm opener beats a specific-sounding but unverifiable claim.`;
 
   return `You write a LinkedIn connection-request note AS ${profile.name}: a ${profile.role} based in ${profile.location} (${profile.stack}), ${profile.experience}, ${profile.education}, job-searching in Canada.
 
 State ${profile.name}'s education as a completed fact. NEVER speculate about graduation timing, being a current student, or "finishing soon" unless the profile explicitly says so.
 
-This is a FIRST-TOUCH note on a connection request — a warm, light opener. ONE simple, easy-to-answer question. It is NOT a pitch, NOT a list of qualifications, and NOT the place to ask for a referral or openings yet. The only job is to start a genuine conversation; everything else comes later once they reply.
+This is a FIRST-TOUCH note on a connection request — a warm, light opener. ONE simple, easy-to-answer ask. It is NOT a pitch, NOT a list of qualifications, and NOT the place to ask for a referral yet. The only job is to start a genuine conversation; everything else comes later once they reply.
 
-The question depends on the angle:
+The framing depends on the angle:
 ${angleGuidance}
 
 Hard rules:
 - Output ONLY the message text — no preamble, no quotes.
 - Target ~180 characters. 200 is an absolute ceiling. Shorter is better.
-- Open with one specific, true detail about them or a genuine point of connection. Never generic.
-- Ask a CONCRETE, useful question — how they got in, what the interview process was like, or whether there are openings. NEVER ask vague questions like "how's the team", "what's it like there", or "what's the experience been" — those get dead-end replies.
+- Open with one specific, true detail — but ONLY from the contact's provided profile text or the sender's own profile above. NEVER state a fact about ${company} (clients, offices, products, projects, history) that isn't in the provided profile text; those come from the model's memory and are frequently wrong. If no verifiable specific detail is available, a warm honest opener with no invented specifics is REQUIRED over a specific-sounding but unconfirmed claim.
+- For ALUM/STACK: ask a CONCRETE, useful question (how they got in, what the interview process was like, whether there are openings). For RECRUITER: use the soft radar/connect framing above, not a question that can be answered "no" and closed.
+- NEVER use vague openers like "how's the team", "what's it like there", or "what's the experience been" — those get dead-end replies.
 - Humble and curious — ${profile.name} is starting a conversation, not proving themselves or making demands.
-- Do NOT ask for a referral in this first note. Do NOT stack multiple questions. ONE light ask.
+- Do NOT ask for a referral in this first note. Do NOT stack multiple questions/asks. ONE light ask.
 - Do NOT ask technical-architecture questions about their work.
 - BANNED: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords.
 - Address them by first name.`;
@@ -204,15 +207,17 @@ function buildFirstDMGoal(angle: Angle, company: string, role: string, schoolNam
     case "ALUM":
       return `ALUM — fellow ${schoolName || "school"} grad. Lead warmly on the shared school, then ask how they got into ${company} or what they'd focus on to land a role there. Humble and curious.`;
     case "STACK":
-      return `STACK — they're an engineer already inside ${company}. You want their honest read on getting in: what the hiring process was like, what interviews looked like, or whether there are openings for someone like you. Do NOT restate or match their tech stack, and do NOT mention your own years/stack as a credential — they can see your profile.`;
+      return `STACK — they're an engineer already inside ${company}. The sanctioned hook is that they build at ${company} on work adjacent to what you do — reference it lightly as the reason you reached out, don't recite their full stack. You want their honest read on getting in: what the hiring process was like, what interviews looked like, or whether there are openings for someone like you. Do NOT mention your own years/stack as a credential — they can see your profile.`;
     case "RECRUITER":
-      return `RECRUITER — they hold the actual openings. Ask whether they're hiring for roles like ${role} right now, and what they look for. Direct and professional. NOT "what should I focus on."`;
+      return `RECRUITER — they hold the actual openings. Ask them to keep you in mind for ${role} roles at ${company} — now or in the future — and, naturally, what they tend to look for in candidates for those roles. Keep it open-ended so it's worth replying to even if nothing is open today. Do NOT reduce it to a closed "are you hiring right now?" yes/no. Direct and professional.
+
+CRITICAL — personalization source: Only personalize from a detail explicitly present in the contact's profile text, or a true detail about the sender's own profile. Do NOT state any fact about ${company} (clients, offices, products, projects, history) that is not in the provided profile text — you do not know these and will get them wrong. If nothing verifiable is available, open naturally with the role interest and the ask rather than inventing a specific-sounding claim.`;
   }
 }
 
 export function buildFirstDMPrompt(input: FirstDMInput): {
   system: string;
-  messages: Array<{ role: "user"; content: string }>;
+  messages: Array<{ role: "user" | "assistant"; content: string }>;
 } {
   const { userProfile: profile } = input;
   const schoolName = extractSchoolName(profile.education);
@@ -231,15 +236,16 @@ It is NOT a referral ask yet (too soon — that comes later in replies). It is N
 
 Voice & length:
 - Warm, concise, genuine. 3–5 sentences max. It's a DM, not an essay.
-- Thank them for connecting, briefly explain why you reached out, ask ONE clear question.
+- Thank them for connecting, briefly explain why you reached out, land ONE clear ask.
 - Humble and curious, asking for guidance. NOT proving expertise or sparring as a peer.
 
 Hard rules:
 - Output ONLY the message text — no preamble, no quotes.
 - Address them by their first name. If no name is available, open without a salutation — never "[First Name]" or "there".
-- You may reference one true, specific detail about them to personalize — but it must SERVE the ask.
-- Do NOT pitch or restate ${profile.name}'s own stack, experience, or qualifications as a selling point. They can see your profile. Lead with genuine curiosity about THEM, not a summary of you.
-- Ask a CONCRETE, useful question (hiring process, what interviews are like, whether there are openings). Avoid vague questions about "team dynamic", "culture", or "what it's like" — those get dead-end replies.
+- You may reference one true, specific detail about them or the company to personalize — but it must SERVE the ask.
+- Do NOT pitch or restate ${profile.name}'s own stack, experience, or qualifications as a selling point. They can see your profile. Lead with genuine curiosity about THEM or the company, not a summary of you.
+- For ALUM/STACK: ask a CONCRETE, useful question (hiring process, what interviews are like, whether there are openings). For RECRUITER: use the open "keep me in mind + what you look for" framing, not a closed "are you hiring right now?" that can be answered "no" and closed.
+- Avoid vague questions about "team dynamic", "culture", or "what it's like" — those get dead-end replies.
 - State ${profile.name}'s experience and background ONLY as given in the profile — never approximate, round, or invent numbers. If you don't need to state a number, don't.
 - BANNED: "I hope this finds you well", "I came across your profile", "I'm impressed by", generic flattery, buzzwords.`;
 

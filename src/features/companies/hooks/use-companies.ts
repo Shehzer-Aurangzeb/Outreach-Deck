@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MOCK_COMPANIES, USE_MOCK_DATA } from "@/lib/mock-data";
 
 import {
+  bulkCreateCompanies,
   createCompany,
   deleteCompany,
   getCompanies,
@@ -77,6 +78,22 @@ export function useSeedCompanies() {
     mutationFn: async () => {
       if (USE_MOCK_DATA) return; // No-op in mock mode
       return seedCompanies();
+    },
+    onSuccess: () => {
+      if (!USE_MOCK_DATA) {
+        void queryClient.invalidateQueries({ queryKey: companyKeys.all });
+      }
+    },
+  });
+}
+
+export function useBulkImportCompanies() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (inputs: CreateCompanyInput[]) => {
+      if (USE_MOCK_DATA) return { created: 0, skipped: 0 };
+      return bulkCreateCompanies(inputs);
     },
     onSuccess: () => {
       if (!USE_MOCK_DATA) {
