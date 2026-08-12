@@ -129,7 +129,7 @@ export function ConversationPane({ contact, onDeleted, onBack }: ConversationPan
       <ConversationHeader
         name={contact.name}
         company={contact.company}
-        angle={contact.angle}
+        category={contact.category}
         stage={contact.stage}
         linkedinUrl={contact.linkedinUrl}
         onStageChange={handleStageChange}

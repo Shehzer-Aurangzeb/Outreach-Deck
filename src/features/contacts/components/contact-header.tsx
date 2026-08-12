@@ -1,13 +1,13 @@
-import type { Angle } from "@prisma/client";
+import type { Category } from "@prisma/client";
 
 import { ExternalLinkIcon, LinkedInIcon, UserIcon, XIcon } from "@/components/icons";
 
-import { ANGLE_CONFIG } from "../constants";
+import { CATEGORY_CONFIG } from "../constants";
 
 interface ContactHeaderProps {
   name: string;
   company: string;
-  angle: Angle;
+  category: Category;
   linkedinUrl?: string | null;
   onClose: () => void;
 }
@@ -15,11 +15,11 @@ interface ContactHeaderProps {
 export function ContactHeader({
   name,
   company,
-  angle,
+  category,
   linkedinUrl,
   onClose,
 }: ContactHeaderProps) {
-  const angleConfig = ANGLE_CONFIG[angle];
+  const categoryConfig = CATEGORY_CONFIG[category];
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -40,8 +40,8 @@ export function ContactHeader({
         <div
           className="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shrink-0"
           style={{
-            backgroundColor: angleConfig.bg,
-            color: angleConfig.color,
+            backgroundColor: categoryConfig.bg,
+            color: categoryConfig.color,
           }}
         >
           {initials || <UserIcon className="w-7 h-7" />}
@@ -61,11 +61,11 @@ export function ContactHeader({
             <span
               className="text-xs px-2 py-1 rounded-md"
               style={{
-                backgroundColor: angleConfig.bg,
-                color: angleConfig.color,
+                backgroundColor: categoryConfig.bg,
+                color: categoryConfig.color,
               }}
             >
-              {angleConfig.label}
+              {categoryConfig.label}
             </span>
             {linkedinUrl && (
               <a

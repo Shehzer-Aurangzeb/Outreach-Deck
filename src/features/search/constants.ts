@@ -1,4 +1,4 @@
-import type { Angle } from "@prisma/client";
+import type { SearchAngle } from "./lib/daily-search-generator";
 
 import {
   BriefcaseIcon,
@@ -7,7 +7,7 @@ import {
 } from "@/components/icons";
 
 export const SEARCH_ANGLE_CONFIG: Record<
-  Angle,
+  SearchAngle,
   {
     color: string;
     bg: string;

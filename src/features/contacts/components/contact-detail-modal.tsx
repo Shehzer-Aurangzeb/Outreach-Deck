@@ -148,7 +148,7 @@ export function ContactDetailModal({ contact, onClose, onDeleted }: ContactDetai
         <ContactHeader
           name={contact.name}
           company={contact.company}
-          angle={contact.angle}
+          category={contact.category}
           linkedinUrl={contact.linkedinUrl}
           onClose={onClose}
         />

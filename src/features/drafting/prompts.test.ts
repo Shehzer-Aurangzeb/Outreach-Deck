@@ -28,7 +28,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Software engineer at Coveo",
       company: "Coveo",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: TEST_PROFILE,
     });
 
@@ -40,7 +40,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Software engineer at Coveo",
       company: "Coveo",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: TEST_PROFILE,
     });
 
@@ -53,7 +53,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Software engineer",
       company: "TestCo",
-      angle: "STACK",
+      category: "STACK_MATCH",
       userProfile: TEST_PROFILE,
     });
 
@@ -66,7 +66,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Senior engineer",
       company: "Shopify",
-      angle: "RECRUITER",
+      category: "RECRUITER_AGENCY",
       userProfile: TEST_PROFILE,
     });
 
@@ -77,11 +77,11 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer",
       company: "TestCo",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: TEST_PROFILE,
     });
 
-    expect(result.messages[0]!.content).toContain("Angle: ALUM");
+    expect(result.messages[0]!.content).toContain("Category: ALUMNI");
   });
 
   it("includes the profile text in user message", () => {
@@ -90,7 +90,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText,
       company: "Coveo",
-      angle: "STACK",
+      category: "STACK_MATCH",
       userProfile: TEST_PROFILE,
     });
 
@@ -110,7 +110,7 @@ describe("buildConnectionNotePrompt", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer",
       company: "TestCo",
-      angle: "STACK",
+      category: "STACK_MATCH",
       userProfile: customProfile,
     });
 
@@ -167,7 +167,7 @@ describe("buildReplyDraftPrompt", () => {
   const baseInput = {
     contactName: "Jane Doe",
     company: "Coveo",
-    angle: "ALUM" as const,
+    category: "ALUMNI" as const,
     profileText: "Senior Engineer at Coveo",
     thread: [
       { role: "YOU" as const, text: "Hi Jane, fellow Concordia alum here!" },
@@ -315,7 +315,7 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer at Shopify",
       company: "Shopify",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: concordiaProfile,
     });
 
@@ -335,7 +335,7 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer at Google",
       company: "Google",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: waterlooProfile,
     });
 
@@ -356,7 +356,7 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Engineer at Amazon",
       company: "Amazon",
-      angle: "ALUM",
+      category: "ALUMNI",
       userProfile: noSchoolProfile,
     });
 
@@ -380,7 +380,7 @@ describe("profile-driven angle hints (no hardcoded school)", () => {
     const result = buildConnectionNotePrompt({
       profileText: "Data Engineer at Shopify",
       company: "Shopify",
-      angle: "STACK",
+      category: "STACK_MATCH",
       userProfile: pythonProfile,
     });
 
@@ -393,7 +393,7 @@ describe("buildFirstDMPrompt", () => {
     const result = buildFirstDMPrompt({
       contactName: "Sarah Chen",
       company: "RBC",
-      angle: "STACK",
+      category: "STACK_MATCH",
       profileText: "Software Engineer at RBC",
       userProfile: TEST_PROFILE,
     });
@@ -406,7 +406,7 @@ describe("buildFirstDMPrompt", () => {
     const result = buildFirstDMPrompt({
       contactName: "John",
       company: "Shopify",
-      angle: "STACK",
+      category: "STACK_MATCH",
       profileText: "Engineer at Shopify",
       userProfile: TEST_PROFILE,
     });
@@ -419,7 +419,7 @@ describe("buildFirstDMPrompt", () => {
     const result = buildFirstDMPrompt({
       contactName: "Jane",
       company: "Google",
-      angle: "ALUM",
+      category: "ALUMNI",
       profileText: "Engineer at Google",
       userProfile: TEST_PROFILE,
     });
@@ -432,7 +432,7 @@ describe("buildFirstDMPrompt", () => {
     const result = buildFirstDMPrompt({
       contactName: "Bob",
       company: "Microsoft",
-      angle: "STACK",
+      category: "STACK_MATCH",
       profileText: "Dev at Microsoft",
       userProfile: TEST_PROFILE,
     });
@@ -445,7 +445,7 @@ describe("buildFirstDMPrompt", () => {
     const result = buildFirstDMPrompt({
       contactName: "Alice",
       company: "Amazon",
-      angle: "RECRUITER",
+      category: "RECRUITER_AGENCY",
       profileText: "Recruiter at Amazon",
       userProfile: TEST_PROFILE,
     });

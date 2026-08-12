@@ -4,7 +4,7 @@ import type { Stage } from "@prisma/client";
 
 import { UserIcon } from "@/components/icons";
 
-import { ANGLE_CONFIG, STAGE_CONFIG } from "../constants";
+import { CATEGORY_CONFIG, STAGE_CONFIG } from "../constants";
 import type { ContactWithMessages } from "./contact-card";
 
 interface ContactListPaneProps {
@@ -32,7 +32,7 @@ export function ContactListPane({
     <div className="flex-1 overflow-y-auto p-2 space-y-1">
       {contacts.map((contact) => {
         const isSelected = contact.id === selectedId;
-        const angleConfig = ANGLE_CONFIG[contact.angle];
+        const categoryConfig = CATEGORY_CONFIG[contact.category];
         const stageConfig = STAGE_CONFIG[contact.stage];
         const initials = contact.name
           .split(" ")
@@ -69,9 +69,9 @@ export function ContactListPane({
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 transition-all"
                 style={{
-                  backgroundColor: angleConfig.bg,
-                  color: angleConfig.color,
-                  boxShadow: isSelected ? `0 0 0 2px ${angleConfig.color}` : "none",
+                  backgroundColor: categoryConfig.bg,
+                  color: categoryConfig.color,
+                  boxShadow: isSelected ? `0 0 0 2px ${categoryConfig.color}` : "none",
                 }}
               >
                 {initials || <UserIcon className="w-4 h-4" />}

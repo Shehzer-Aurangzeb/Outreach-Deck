@@ -16,13 +16,32 @@ import {
   type UserProfile,
 } from "../prompts";
 
+const CATEGORIES = [
+  "RECRUITER_EMBEDDED",
+  "RECRUITER_AGENCY",
+  "RECRUITER_VENDOR",
+  "ALUMNI",
+  "STACK_MATCH",
+  "HIRING_MANAGER",
+  "UNKNOWN",
+] as const;
+
 const connectionDraftSchema = z.object({
   profileText: z.string().min(1, "Profile text is required"),
   company: z.string().min(1, "Company is required"),
-  angle: z.enum(["ALUM", "STACK", "RECRUITER"]),
+  category: z.enum(CATEGORIES),
 });
 
 export type ConnectionDraftInput = z.infer<typeof connectionDraftSchema>;
+
+const firstDMDirectSchema = z.object({
+  contactName: z.string().min(1, "Contact name is required"),
+  profileText: z.string().min(1, "Profile text is required"),
+  company: z.string().min(1, "Company is required"),
+  category: z.enum(CATEGORIES),
+});
+
+export type FirstDMDirectInput = z.infer<typeof firstDMDirectSchema>;
 
 async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const profile = await prisma.profile.findUnique({
@@ -41,12 +60,48 @@ async function getUserProfile(userId: string): Promise<UserProfile | null> {
     experience: profile.experience,
     education: profile.education,
     summary: profile.summary,
+    workAuth: profile.workAuth,
+    availability: profile.availability,
+    openToContract: profile.openToContract,
+    openToRelocation: profile.openToRelocation,
   };
+}
+
+const BANNED_PHRASES = [
+  "I hope this finds you well",
+  "I came across your profile",
+  "I'm impressed by",
+  "I'd love to",
+  "would love to",
+  "on your radar",
+  "caught my eye",
+  "lines up closely",
+  "exactly where I do my best work",
+  "reach out",
+  "circle back",
+  "passionate about",
+  "Looking forward to hearing from you",
+];
+
+function validateDraft(draft: string): { valid: boolean; issues: string[] } {
+  const issues: string[] = [];
+
+  if (draft.includes("—")) {
+    issues.push("Contains em dash");
+  }
+
+  for (const phrase of BANNED_PHRASES) {
+    if (draft.toLowerCase().includes(phrase.toLowerCase())) {
+      issues.push(`Contains banned phrase: "${phrase}"`);
+    }
+  }
+
+  return { valid: issues.length === 0, issues };
 }
 
 export async function draftConnectionNote(
   input: ConnectionDraftInput
-): Promise<{ draft: string } | { error: string }> {
+): Promise<{ draft: string; warnings?: string[] } | { error: string }> {
   // Mock mode: return pre-written draft, no auth/DB/Claude
   if (USE_MOCK_DATA) {
     return { draft: MOCK_CONNECTION_DRAFT };
@@ -78,6 +133,7 @@ export async function draftConnectionNote(
     });
 
     let draft = await generateDraft(prompt);
+    let warnings: string[] | undefined;
 
     // Enforce 200-char ceiling: retry once then trim at sentence boundary
     if (draft.length > 200) {
@@ -99,9 +155,105 @@ export async function draftConnectionNote(
       }
     }
 
-    return { draft };
+    // Validate for banned phrases and em dashes
+    const validation = validateDraft(draft);
+    if (!validation.valid) {
+      // Retry once with explicit fix instructions
+      const fixPrompt = {
+        system: prompt.system,
+        messages: [
+          ...prompt.messages,
+          { role: "assistant" as const, content: draft },
+          { role: "user" as const, content: `Issues found: ${validation.issues.join(", ")}. Rewrite without these issues. No em dashes (use commas or periods). No banned phrases.` },
+        ],
+      };
+      const fixedDraft = await generateDraft(fixPrompt);
+      const revalidation = validateDraft(fixedDraft);
+
+      if (revalidation.valid && fixedDraft.length <= 200) {
+        draft = fixedDraft;
+      } else {
+        // Still has issues - return with warnings
+        warnings = validation.issues;
+      }
+    }
+
+    return warnings ? { draft, warnings } : { draft };
   } catch (err) {
     console.error("Connection draft error:", err);
+    return { error: "Failed to generate draft" };
+  }
+}
+
+/**
+ * Draft a first DM for a contact that's already connected.
+ * Used by Quick Add when connectionState is CONNECTED.
+ * Takes raw input (no contactId required) - similar to draftConnectionNote.
+ */
+export async function draftFirstDMDirect(
+  input: FirstDMDirectInput
+): Promise<{ draft: string; warnings?: string[] } | { error: string }> {
+  if (USE_MOCK_DATA) {
+    return { draft: "Thanks for connecting! I'm exploring opportunities in your space and would love to learn more about what you look for in candidates. What's been top of mind for your team lately?" };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const parsed = firstDMDirectSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const userProfile = await getUserProfile(user.id);
+  if (!userProfile) {
+    return { error: "Profile not found. Please complete your profile first." };
+  }
+
+  try {
+    const prompt = buildFirstDMPrompt({
+      contactName: parsed.data.contactName,
+      company: parsed.data.company,
+      category: parsed.data.category,
+      profileText: parsed.data.profileText,
+      userProfile,
+    });
+
+    let draft = await generateDraft(prompt);
+    let warnings: string[] | undefined;
+
+    // Validate for banned phrases and em dashes
+    const validation = validateDraft(draft);
+    if (!validation.valid) {
+      // Retry once with explicit fix instructions
+      const fixPrompt = {
+        system: prompt.system,
+        messages: [
+          ...prompt.messages,
+          { role: "assistant" as const, content: draft },
+          { role: "user" as const, content: `Issues found: ${validation.issues.join(", ")}. Rewrite without these issues. No em dashes (use commas or periods). No banned phrases.` },
+        ],
+      };
+      const fixedDraft = await generateDraft(fixPrompt);
+      const revalidation = validateDraft(fixedDraft);
+
+      if (revalidation.valid) {
+        draft = fixedDraft;
+      } else {
+        // Still has issues - return with warnings
+        warnings = validation.issues;
+      }
+    }
+
+    return warnings ? { draft, warnings } : { draft };
+  } catch (err) {
+    console.error("First DM direct draft error:", err);
     return { error: "Failed to generate draft" };
   }
 }
@@ -194,7 +346,7 @@ export async function draftReply(
     const prompt = buildReplyDraftPrompt({
       contactName: contact.name,
       company: contact.company,
-      angle: contact.angle,
+      category: contact.category,
       profileText: contact.profileText ?? "",
       thread,
       userProfile,
@@ -348,7 +500,7 @@ export async function draftFirstDM(
     const prompt = buildFirstDMPrompt({
       contactName: contact.name,
       company: contact.company,
-      angle: contact.angle,
+      category: contact.category,
       profileText: contact.profileText ?? "",
       userProfile,
     });

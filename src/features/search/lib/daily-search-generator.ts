@@ -1,6 +1,6 @@
 import type { Tier } from "@prisma/client";
 
-export type Angle = "ALUM" | "STACK" | "RECRUITER";
+export type SearchAngle = "ALUM" | "STACK" | "RECRUITER";
 
 export interface Company {
   id: string;
@@ -20,19 +20,19 @@ export interface SearchProfile {
 
 export interface DailySearch {
   company: Company;
-  angle: Angle;
+  angle: SearchAngle;
   query: string;
   linkedinUrl: string;
 }
 
 export interface AdHocSearch {
   companyName: string;
-  angle: Angle;
+  angle: SearchAngle;
   query: string;
   linkedinUrl: string;
 }
 
-const ANGLES: Angle[] = ["ALUM", "STACK", "RECRUITER"];
+const ANGLES: SearchAngle[] = ["ALUM", "STACK", "RECRUITER"];
 
 /**
  * Extract the primary school name from education for LinkedIn search.
@@ -81,7 +81,7 @@ function extractStackTerms(stack: string): string {
 }
 
 type AngleTemplates = Record<
-  Angle,
+  SearchAngle,
   { template: (company: string, profile: SearchProfile) => string; rationale: (profile: SearchProfile) => string }
 >;
 
@@ -118,7 +118,7 @@ export function buildLinkedInUrl(query: string): string {
   return `https://www.linkedin.com/search/results/people/?keywords=${encoded}`;
 }
 
-export function buildSearchQuery(companyName: string, angle: Angle, profile: SearchProfile): string {
+export function buildSearchQuery(companyName: string, angle: SearchAngle, profile: SearchProfile): string {
   return ANGLE_TEMPLATES[angle].template(companyName, profile);
 }
 
@@ -238,6 +238,6 @@ export function generateDailySearches(
   });
 }
 
-export function getAngleRationale(angle: Angle, profile: SearchProfile): string {
+export function getAngleRationale(angle: SearchAngle, profile: SearchProfile): string {
   return ANGLE_TEMPLATES[angle].rationale(profile);
 }

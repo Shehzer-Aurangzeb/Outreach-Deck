@@ -29,27 +29,47 @@ enum Tier {
 }
 
 model Contact {
-  id          String    @id @default(cuid())
-  userId      String    // owner
-  name        String
-  company     String    // free text (denormalized; simple for v1)
-  angle       Angle     @default(STACK)
-  stage       Stage     @default(CONTACTED)
-  linkedinUrl String?
-  profileText String?   @db.Text // pasted profile, kept for redraft context
-  nextStep    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  messages    Message[]
+  id                  String           @id @default(cuid())
+  userId              String
+  name                String
+  company             String
+  category            Category         @default(UNKNOWN)
+  secondaryCategories String[]
+  stage               Stage            @default(CONTACTED)
+  connectionState     ConnectionState  @default(UNKNOWN_STATE)
+  messageMode         MessageMode?
+  linkedinUrl         String?
+  profileText         String?          @db.Text
+  rawProfileText      String?          @db.Text
+  vendorEmail         String?
+  nextStep            String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  messages            Message[]
 
   @@index([userId])
   @@index([userId, stage])
 }
 
-enum Angle {
-  ALUM
-  STACK
-  RECRUITER
+enum Category {
+  RECRUITER_EMBEDDED
+  RECRUITER_AGENCY
+  RECRUITER_VENDOR
+  ALUMNI
+  STACK_MATCH
+  HIRING_MANAGER
+  UNKNOWN
+}
+
+enum ConnectionState {
+  CONNECTED
+  NOT_CONNECTED
+  UNKNOWN_STATE
+}
+
+enum MessageMode {
+  CONNECTION_NOTE
+  FIRST_DM
 }
 
 enum Stage {
@@ -77,20 +97,24 @@ enum Role {
 }
 
 model Profile {
-  id           String    @id @default(cuid())
-  userId       String    @unique // one profile per user
-  name         String
-  role         String
-  location     String
-  stack        String    // tech/domain skills as a string
-  experience   String    // e.g. "~4 years"
-  education    String
-  summary      String?   @db.Text // 1-2 sentence positioning line
-  cvFileUrl    String?   // Supabase Storage URL for the uploaded CV
-  cvFileName   String?   // Original filename for display
-  cvUploadedAt DateTime? // When the CV was uploaded
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  name            String
+  role            String
+  location        String
+  stack           String
+  experience      String
+  education       String
+  summary         String?   @db.Text
+  cvFileUrl       String?
+  cvFileName      String?
+  cvUploadedAt    DateTime?
+  workAuth        String?
+  availability    String?
+  openToContract  Boolean   @default(false)
+  openToRelocation Boolean  @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([userId])
 }

@@ -6,14 +6,32 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
+const CATEGORIES = [
+  "RECRUITER_EMBEDDED",
+  "RECRUITER_AGENCY",
+  "RECRUITER_VENDOR",
+  "ALUMNI",
+  "STACK_MATCH",
+  "HIRING_MANAGER",
+  "UNKNOWN",
+] as const;
+
+const CONNECTION_STATES = ["CONNECTED", "NOT_CONNECTED", "UNKNOWN_STATE"] as const;
+const MESSAGE_MODES = ["CONNECTION_NOTE", "FIRST_DM"] as const;
+
 const createContactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   company: z.string().min(1, "Company is required"),
-  angle: z.enum(["ALUM", "STACK", "RECRUITER"]),
+  category: z.enum(CATEGORIES),
+  secondaryCategories: z.array(z.enum(CATEGORIES)).optional(),
+  connectionState: z.enum(CONNECTION_STATES).optional(),
+  messageMode: z.enum(MESSAGE_MODES).optional(),
   linkedinUrl: z.string().url().optional().or(z.literal("")),
   profileText: z.string().optional(),
-  firstMessage: z.string().optional(), // The connection note (may be empty if sent without note)
-  sentWithNote: z.boolean().default(true), // true = note sent, false = bare request
+  rawProfileText: z.string().optional(),
+  vendorEmail: z.string().email().optional().or(z.literal("")),
+  firstMessage: z.string().optional(),
+  sentWithNote: z.boolean().default(true),
 });
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;
@@ -48,12 +66,15 @@ export async function createContact(
         userId: user.id,
         name: data.name,
         company: data.company,
-        angle: data.angle,
+        category: data.category,
+        secondaryCategories: data.secondaryCategories ?? [],
+        connectionState: data.connectionState ?? (data.sentWithNote ? "NOT_CONNECTED" : "UNKNOWN_STATE"),
+        messageMode: data.messageMode ?? (data.sentWithNote ? "CONNECTION_NOTE" : undefined),
         linkedinUrl: data.linkedinUrl || null,
         profileText: data.profileText || null,
-        // REQUESTED = bare request (waiting for accept), CONTACTED = note sent (message landed)
+        rawProfileText: data.rawProfileText || null,
+        vendorEmail: data.vendorEmail || null,
         stage: data.sentWithNote ? "CONTACTED" : "REQUESTED",
-        // Only log message if note was actually sent
         ...(data.sentWithNote && data.firstMessage
           ? {
               messages: {

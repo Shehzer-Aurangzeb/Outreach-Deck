@@ -9,6 +9,7 @@ import {
   draftConnectionNote,
   parseLinkedInProfile,
 } from "@/features/drafting/actions/draft-actions";
+import { searchAngleToCategory } from "@/features/drafting/prompts";
 
 import { MOCK_CONNECTION_DRAFT, USE_MOCK_DATA } from "@/lib/mock-data";
 
@@ -98,7 +99,7 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
     const result = await draftConnectionNote({
       profileText,
       company: search.company.name,
-      angle: search.angle,
+      category: searchAngleToCategory(search.angle),
     });
 
     setIsGenerating(false);
@@ -130,7 +131,7 @@ export function ProfileComposer({ search, onClose, onSuccess }: ProfileComposerP
     const result = await createContact({
       name: profile.name,
       company: search.company.name,
-      angle: search.angle,
+      category: searchAngleToCategory(search.angle),
       linkedinUrl: profile.linkedinUrl || undefined,
       profileText,
       firstMessage: sentWithNote ? draft : undefined,

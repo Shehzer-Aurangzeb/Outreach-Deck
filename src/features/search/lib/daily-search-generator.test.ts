@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   generateDailySearches,
-  type Angle,
+  type SearchAngle,
   type Company,
   type SearchProfile,
 } from "./daily-search-generator";

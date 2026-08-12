@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { Stage, Angle } from "@prisma/client";
+import type { Stage, Category } from "@prisma/client";
 
 import { ChevronLeftIcon, ExternalLinkIcon, LinkedInIcon, TrashIcon, UserIcon } from "@/components/icons";
 
-import { ANGLE_CONFIG, STAGE_CONFIG, STAGE_ORDER } from "../constants";
+import { CATEGORY_CONFIG, STAGE_CONFIG, STAGE_ORDER } from "../constants";
 
 interface ConversationHeaderProps {
   name: string;
   company: string;
-  angle: Angle;
+  category: Category;
   stage: Stage;
   linkedinUrl?: string | null;
   onStageChange: (stage: Stage) => void;
@@ -22,7 +22,7 @@ interface ConversationHeaderProps {
 export function ConversationHeader({
   name,
   company,
-  angle,
+  category,
   stage,
   linkedinUrl,
   onStageChange,
@@ -32,7 +32,7 @@ export function ConversationHeader({
 }: ConversationHeaderProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const angleConfig = ANGLE_CONFIG[angle];
+  const categoryConfig = CATEGORY_CONFIG[category];
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -71,9 +71,9 @@ export function ConversationHeader({
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
           style={{
-            backgroundColor: angleConfig.bg,
-            color: angleConfig.color,
-            boxShadow: `0 0 0 2px ${angleConfig.color}`,
+            backgroundColor: categoryConfig.bg,
+            color: categoryConfig.color,
+            boxShadow: `0 0 0 2px ${categoryConfig.color}`,
           }}
         >
           {initials || <UserIcon className="w-4 h-4" />}
@@ -125,9 +125,9 @@ export function ConversationHeader({
         <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
           style={{
-            backgroundColor: angleConfig.bg,
-            color: angleConfig.color,
-            boxShadow: `0 0 0 2px ${angleConfig.color}`,
+            backgroundColor: categoryConfig.bg,
+            color: categoryConfig.color,
+            boxShadow: `0 0 0 2px ${categoryConfig.color}`,
           }}
         >
           {initials || <UserIcon className="w-4 h-4" />}
@@ -155,11 +155,11 @@ export function ConversationHeader({
           <span
             className="text-[10px] font-medium px-2 py-0.5 rounded-full uppercase tracking-wide"
             style={{
-              backgroundColor: angleConfig.bg,
-              color: angleConfig.color,
+              backgroundColor: categoryConfig.bg,
+              color: categoryConfig.color,
             }}
           >
-            {angleConfig.label}
+            {categoryConfig.short}
           </span>
           {linkedinUrl && (
             <a

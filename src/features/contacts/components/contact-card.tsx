@@ -1,12 +1,8 @@
 "use client";
 
-import type { Contact, Message, Stage, Angle } from "@prisma/client";
+import type { Contact, Message, Stage, Category } from "@prisma/client";
 
-const ANGLE_CONFIG: Record<Angle, { color: string; bg: string; label: string }> = {
-  ALUM: { color: "var(--color-accent)", bg: "var(--color-accent-subtle)", label: "Alumni" },
-  STACK: { color: "var(--color-info)", bg: "var(--color-info-subtle)", label: "Tech Stack" },
-  RECRUITER: { color: "var(--color-success)", bg: "var(--color-success-subtle)", label: "Recruiter" },
-};
+import { CATEGORY_CONFIG } from "../constants";
 
 function MessageIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -50,7 +46,7 @@ interface ContactCardProps {
 }
 
 export function ContactCard({ contact, onClick }: ContactCardProps) {
-  const angleConfig = ANGLE_CONFIG[contact.angle];
+  const categoryConfig = CATEGORY_CONFIG[contact.category];
   const lastMessage = contact.messages[contact.messages.length - 1];
   const lastMessagePreview = lastMessage
     ? lastMessage.text.slice(0, 50) + (lastMessage.text.length > 50 ? "..." : "")
@@ -78,8 +74,8 @@ export function ContactCard({ contact, onClick }: ContactCardProps) {
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0"
           style={{
-            backgroundColor: angleConfig.bg,
-            color: angleConfig.color,
+            backgroundColor: categoryConfig.bg,
+            color: categoryConfig.color,
           }}
         >
           {initials || <UserIcon className="w-5 h-5" />}
@@ -106,16 +102,16 @@ export function ContactCard({ contact, onClick }: ContactCardProps) {
         </div>
       </div>
 
-      {/* Angle Badge */}
+      {/* Category Badge */}
       <div className="mb-3">
         <span
           className="inline-flex items-center text-xs px-2 py-1 rounded-md"
           style={{
-            backgroundColor: angleConfig.bg,
-            color: angleConfig.color,
+            backgroundColor: categoryConfig.bg,
+            color: categoryConfig.color,
           }}
         >
-          {angleConfig.label}
+          {categoryConfig.short}
         </span>
       </div>
 

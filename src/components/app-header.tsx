@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-import { MenuIcon, XIcon } from "@/components/icons";
+import { MenuIcon, XIcon, PlusIcon } from "@/components/icons";
+import { QuickAddModal } from "@/features/quick-add";
 
 import { DesktopNav } from "./header/desktop-nav";
 import { Logo } from "./header/logo";
@@ -16,7 +17,20 @@ interface AppHeaderClientProps {
 
 export function AppHeaderClient({ userEmail }: AppHeaderClientProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setQuickAddOpen(true);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -31,7 +45,29 @@ export function AppHeaderClient({ userEmail }: AppHeaderClientProps) {
           <div className="h-14 flex items-center justify-between">
             <Logo />
             <DesktopNav pathname={pathname} />
-            <UserMenu userEmail={userEmail} />
+
+            <div className="hidden md:flex items-center gap-3">
+              <button
+                onClick={() => setQuickAddOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all"
+                style={{
+                  backgroundColor: "var(--color-accent)",
+                  color: "var(--color-base)",
+                }}
+              >
+                <PlusIcon className="w-4 h-4" />
+                <span>Quick Add</span>
+                <kbd
+                  className="hidden lg:inline-block ml-1 px-1.5 py-0.5 rounded text-xs"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                  }}
+                >
+                  ⌘K
+                </kbd>
+              </button>
+              <UserMenu userEmail={userEmail} />
+            </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -53,6 +89,16 @@ export function AppHeaderClient({ userEmail }: AppHeaderClientProps) {
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
       />
+
+      {quickAddOpen && (
+        <QuickAddModal
+          onClose={() => setQuickAddOpen(false)}
+          onSuccess={(id) => {
+            setQuickAddOpen(false);
+            router.push(`/pipeline?contact=${id}`);
+          }}
+        />
+      )}
     </>
   );
 }
