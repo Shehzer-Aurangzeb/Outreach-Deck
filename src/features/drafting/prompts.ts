@@ -107,11 +107,11 @@ function buildConnectionSystemPrompt(
 
 CRITICAL — personalization source: Only personalize from a detail explicitly present in the contact's profile text, or a true detail about ${profile.name}'s profile. Do NOT state any fact about ${company} that is not in the provided profile text.`
             : category === "RECRUITER_AGENCY"
-              ? `RECRUITER_AGENCY — they have live roles and a quota. Facts first, then one open question about their current req flow.
+              ? `RECRUITER_AGENCY — they have live roles and a quota. Terse facts, no warm-up. No education, no "about", no filler.
 
 ${buildRecruiterFixedFields(profile, "connection_note", false)}
 
-State ${profile.name}'s stack and experience briefly — recruiters need this to pitch you to clients.`
+State ${profile.name}'s stack and years directly (e.g., "3.5 years React, TypeScript, Node").`
               : category === "RECRUITER_VENDOR"
                 ? `RECRUITER_VENDOR — they work from a resume database and will skim. Four lines maximum, pure facts, no conversation, no question.
 
@@ -287,11 +287,18 @@ function buildFirstDMGoal(category: Category, company: string, profile: UserProf
     return `RECRUITER_EMBEDDED — no standing req list, so being memorable matters more than being catalogued. Lead with a question they'd enjoy answering, credentials underneath. Conversational, no hard sell. Do not lead with the stack.`;
   }
   if (category === "RECRUITER_AGENCY") {
-    return `RECRUITER_AGENCY — they have live roles and a quota. State your availability and credentials up front, then ask one open question about what they're seeing on the mid-level React or full-stack side.
+    return `RECRUITER_AGENCY — they have live roles and a quota. Terse, factual, efficient. No warm-up.
+
+Format: "Thanks for connecting, {FirstName}." (one line, no separate "Hi"). Then credentials in 2-3 short sentences. End with open question.
 
 ${buildRecruiterFixedFields(profile, "first_dm", false)}
 
-State ${profile.name}'s stack and experience as credentials — recruiters need this to pitch you to clients.`;
+Rules:
+- State stack and experience as credentials — recruiters need this to pitch you to clients.
+- Do NOT include education (they don't care about degrees).
+- Do NOT use "about" before numbers — state exact years.
+- Do NOT use "I'm a" — start with role directly.
+- No filler: no "just completed", "recently graduated", "looking forward to".`;
   }
   if (category === "RECRUITER_VENDOR") {
     return `RECRUITER_VENDOR — they work from a resume database and will skim. Four lines maximum, pure facts, no conversation, no question.
