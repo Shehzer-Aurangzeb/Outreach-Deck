@@ -44,7 +44,7 @@ describe("buildConnectionNotePrompt", () => {
       userProfile: TEST_PROFILE,
     });
 
-    expect(result.system).toContain("BANNED:");
+    expect(result.system).toContain("BANNED phrases");
     expect(result.system).toContain("I hope this finds you well");
     expect(result.system).toContain("I came across your profile");
   });
@@ -179,22 +179,22 @@ describe("buildReplyDraftPrompt", () => {
   it("builds a system prompt with reply guidance", () => {
     const result = buildReplyDraftPrompt(baseInput);
 
-    expect(result.system.toLowerCase()).toContain("concise, direct, genuine");
-    expect(result.system).toContain("2–4 sentences");
+    expect(result.system.toLowerCase()).toContain("humble and appreciative");
+    expect(result.system).toContain("2 to 4 sentences");
     expect(result.system).toContain("Output ONLY the message text");
   });
 
   it("includes referral escalation guidance in system prompt", () => {
     const result = buildReplyDraftPrompt(baseInput);
 
-    expect(result.system).toContain("gently raise whether they'd be open to referring");
+    expect(result.system).toContain("gently raise whether they would be open to referring");
   });
 
   it("includes handling for cold/declined replies", () => {
     const result = buildReplyDraftPrompt(baseInput);
 
-    expect(result.system).toContain("Short / cool / noncommittal");
-    expect(result.system).toContain("Declined or can't help");
+    expect(result.system).toContain("Short, cool, or noncommittal");
+    expect(result.system).toContain("Declined or cannot help");
   });
 
   it("includes contact context in the first message", () => {
@@ -299,8 +299,8 @@ describe("extractSchoolName", () => {
   });
 
   it("extracts tightly from messy inputs (avoids greedy matching)", () => {
-    expect(extractSchoolName("I studied hard at Concordia University")).toBe("Concordia");
-    expect(extractSchoolName("worked my way through McGill University")).toBe("McGill");
+    expect(extractSchoolName("I studied hard at Concordia University")).toBe("Concordia University");
+    expect(extractSchoolName("worked my way through McGill University")).toBe("McGill University");
     expect(extractSchoolName("graduated from University of Toronto last year")).toContain("Toronto");
   });
 });
@@ -425,7 +425,7 @@ describe("buildFirstDMPrompt", () => {
     });
 
     expect(result.system).toContain("Do NOT pitch or restate");
-    expect(result.system).toContain("They can see your profile");
+    expect(result.system).toContain("They can see the profile");
   });
 
   it("includes rule for concrete questions", () => {
@@ -437,7 +437,7 @@ describe("buildFirstDMPrompt", () => {
       userProfile: TEST_PROFILE,
     });
 
-    expect(result.system).toContain("CONCRETE, useful question");
+    expect(result.system).toContain("CONCRETE question");
     expect(result.system).toContain("Avoid vague questions");
   });
 
@@ -450,6 +450,6 @@ describe("buildFirstDMPrompt", () => {
       userProfile: TEST_PROFILE,
     });
 
-    expect(result.system).toContain("never approximate, round, or invent numbers");
+    expect(result.system).toContain("Never approximate, round, or invent numbers");
   });
 });

@@ -26,6 +26,7 @@ import {
 import { AdHocSearchBox } from "./ad-hoc-search-box";
 import { FeatureCard } from "./feature-card";
 import { ProfileComposer } from "./profile-composer";
+import { RecruiterFinder } from "./recruiter-finder";
 import { SearchCard } from "./search-card";
 import { StepCard } from "./step-card";
 
@@ -230,6 +231,9 @@ export function TodayView() {
           />
         </div>
 
+        {/* Recruiter Finder - available even without companies */}
+        <RecruiterFinder profile={searchProfile} />
+
         {/* Ad-hoc Search */}
         <AdHocSearchBox profile={searchProfile} onContactFound={handleAdHocSelect} />
 
@@ -368,6 +372,9 @@ export function TodayView() {
             </p>
           </div>
         )}
+
+        {/* Recruiter Finder */}
+        <RecruiterFinder profile={searchProfile} />
 
         {/* How It Works - Collapsible */}
         <div
